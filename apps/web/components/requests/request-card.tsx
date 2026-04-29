@@ -30,17 +30,29 @@ const RESOURCE_ICONS: Record<string, React.ElementType> = {
 };
 
 const URGENCY_STYLES: Record<string, { badge: string; text: string }> = {
-  critical: { badge: "bg-red-100 text-red-700 border-red-200", text: "text-red-600" },
-  high: { badge: "bg-orange-100 text-orange-700 border-orange-200", text: "text-orange-600" },
-  medium: { badge: "bg-amber-100 text-amber-700 border-amber-200", text: "text-amber-600" },
-  low: { badge: "bg-green-100 text-green-700 border-green-200", text: "text-green-600" },
+  critical: {
+    badge: "bg-[oklch(0.93_0.04_25)] text-[oklch(0.42_0.18_25)] border-[oklch(0.89_0.04_25)]",
+    text: "text-[oklch(0.48_0.18_25)]",
+  },
+  high: {
+    badge: "bg-[oklch(0.93_0.05_50)] text-[oklch(0.45_0.16_50)] border-[oklch(0.89_0.05_50)]",
+    text: "text-[oklch(0.50_0.16_50)]",
+  },
+  medium: {
+    badge: "bg-[oklch(0.93_0.05_80)] text-[oklch(0.45_0.14_80)] border-[oklch(0.89_0.05_80)]",
+    text: "text-[oklch(0.50_0.14_80)]",
+  },
+  low: {
+    badge: "bg-[oklch(0.92_0.05_155)] text-[oklch(0.38_0.12_155)] border-[oklch(0.88_0.05_155)]",
+    text: "text-[oklch(0.44_0.12_155)]",
+  },
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  open: "bg-blue-100 text-blue-700",
-  in_progress: "bg-amber-100 text-amber-700",
-  fulfilled: "bg-green-100 text-green-700",
-  cancelled: "bg-gray-100 text-gray-500",
+  open: "bg-[oklch(0.92_0.05_250)] text-[oklch(0.38_0.14_250)]",
+  in_progress: "bg-[oklch(0.93_0.05_80)] text-[oklch(0.42_0.12_80)]",
+  fulfilled: "bg-[oklch(0.92_0.06_155)] text-[oklch(0.35_0.12_155)]",
+  cancelled: "bg-[oklch(0.94_0.003_250)] text-[oklch(0.50_0.01_250)]",
 };
 
 type Props = {
@@ -76,52 +88,52 @@ export function RequestCard({ request }: Props) {
   };
 
   return (
-    <div className="rounded-md border bg-white p-3 transition-shadow hover:shadow-sm">
+    <div className="request-card">
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
-          <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <Icon className="h-4.5 w-4.5 text-muted-foreground" />
         </div>
 
         {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-medium leading-tight">
+            <h3 className="text-[13px] font-semibold leading-tight text-foreground">
               {request.title}
             </h3>
             <Badge
               variant="outline"
-              className={cn("shrink-0 text-[10px] uppercase", urgencyStyle.badge)}
+              className={cn("shrink-0 text-[10px] font-semibold uppercase tracking-wider", urgencyStyle.badge)}
             >
               {request.urgency}
             </Badge>
           </div>
 
-          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+          <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
             {request.description}
           </p>
 
           {/* Meta row */}
-          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
+          <div className="mt-3 flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1 text-muted-foreground">
               <Users className="h-3 w-3" />
               <span
                 className={cn(
-                  "font-medium",
+                  "font-semibold",
                   volRatio >= 1
-                    ? "text-green-600"
+                    ? "text-[oklch(0.48_0.14_155)]"
                     : volRatio >= 0.8
-                      ? "text-amber-600"
-                      : ""
+                      ? "text-[oklch(0.50_0.14_80)]"
+                      : "text-foreground"
                 )}
               >
                 {volCount}/{request.maxVolunteers}
               </span>
             </span>
-            <Badge variant="secondary" className={cn("text-[10px]", STATUS_STYLES[request.status])}>
+            <Badge variant="secondary" className={cn("text-[10px] font-semibold border-0", STATUS_STYLES[request.status])}>
               {request.status.replace("_", " ")}
             </Badge>
-            <span className="flex items-center gap-1 uppercase font-medium">
+            <span className="flex items-center gap-1 uppercase font-semibold text-[10px] text-muted-foreground tracking-wider">
               <MapPin className="h-3 w-3" />
               {request.type}
             </span>
@@ -132,7 +144,7 @@ export function RequestCard({ request }: Props) {
             <Button
               size="sm"
               variant="outline"
-              className="mt-2 h-7 gap-1 text-xs"
+              className="mt-3 h-8 gap-1.5 text-xs font-semibold border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30"
               onClick={handleRespond}
               disabled={respond.isPending}
             >

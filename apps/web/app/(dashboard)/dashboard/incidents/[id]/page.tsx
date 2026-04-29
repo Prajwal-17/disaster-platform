@@ -40,37 +40,42 @@ const MapView = dynamic(
 
 const TYPE_CONFIG: Record<
   string,
-  { icon: React.ElementType; color: string; bg: string; label: string }
+  { icon: React.ElementType; color: string; bg: string; label: string; badgeClass: string }
 > = {
   flood: {
     icon: Droplets,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
+    color: "text-[oklch(0.45_0.16_250)]",
+    bg: "bg-[oklch(0.94_0.04_250)]",
     label: "Flood",
+    badgeClass: "badge-flood",
   },
   earthquake: {
     icon: Mountain,
-    color: "text-red-600",
-    bg: "bg-red-50",
+    color: "text-[oklch(0.48_0.14_25)]",
+    bg: "bg-[oklch(0.95_0.03_25)]",
     label: "Earthquake",
+    badgeClass: "badge-earthquake",
   },
   cyclone: {
     icon: Wind,
-    color: "text-violet-600",
-    bg: "bg-violet-50",
+    color: "text-[oklch(0.48_0.16_290)]",
+    bg: "bg-[oklch(0.95_0.03_290)]",
     label: "Cyclone",
+    badgeClass: "badge-cyclone",
   },
   fire: {
     icon: Flame,
-    color: "text-orange-600",
-    bg: "bg-orange-50",
+    color: "text-[oklch(0.52_0.18_40)]",
+    bg: "bg-[oklch(0.95_0.04_50)]",
     label: "Fire",
+    badgeClass: "badge-fire",
   },
   other: {
     icon: HelpCircle,
-    color: "text-gray-600",
-    bg: "bg-gray-50",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
     label: "Other",
+    badgeClass: "badge-other",
   },
 };
 
@@ -113,13 +118,13 @@ export default function IncidentDetailPage({
     return (
       <div className="flex h-full">
         <div className="flex-1 bg-muted animate-pulse" />
-        <div className="w-96 border-l p-4 space-y-4">
+        <div className="sidebar-panel flex w-[420px] shrink-0 flex-col border-l border-[#E2E8F0] p-5 space-y-4">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
-          <div className="space-y-2 pt-4">
+          <div className="space-y-3 pt-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
+              <Skeleton key={i} className="h-28 w-full rounded-lg" />
             ))}
           </div>
         </div>
@@ -131,10 +136,13 @@ export default function IncidentDetailPage({
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-medium">Incident not found</p>
+          <p className="text-lg font-semibold text-foreground">Incident not found</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            The incident may have been removed or doesn&apos;t exist.
+          </p>
           <Button
             variant="outline"
-            className="mt-4"
+            className="mt-4 h-10"
             onClick={() => router.push("/dashboard")}
           >
             Back to Dashboard
@@ -156,65 +164,64 @@ export default function IncidentDetailPage({
         />
       </div>
 
-      <aside className="flex w-[420px] shrink-0 flex-col border-l bg-white">
-        <div className="shrink-0 border-b px-4 py-3">
-          <div className="mb-2 flex items-center gap-2">
+      {/* Right panel — Incident info + requests */}
+      <aside className="sidebar-panel flex w-[420px] shrink-0 flex-col border-l border-[#E2E8F0]">
+        {/* Header */}
+        <div className="border-b border-[#E2E8F0] px-5 py-4">
+          <div className="flex items-center gap-2.5 mb-3">
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
               onClick={() => router.push("/dashboard")}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base font-bold truncate tracking-tight text-foreground">
                 {incident.title}
               </h1>
             </div>
           </div>
 
-          <div className="text-muted-foreground flex items-center gap-2 text-xs">
-            <div
-              className={cn(
-                "flex items-center gap-1 font-medium",
-                config.color,
-              )}
-            >
+          <div className="flex items-center gap-2.5 text-[11px]">
+            <div className={cn("flex items-center gap-1 font-semibold", config.color)}>
               <Icon className="h-3.5 w-3.5" />
               {config.label}
             </div>
-            <span>·</span>
+            <span className="text-muted-foreground/30">·</span>
             <Badge
               variant="secondary"
               className={cn(
-                "text-[10px] uppercase",
+                "text-[10px] font-semibold uppercase tracking-wider border-0",
                 incident.status === "active"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-gray-100 text-gray-600",
+                  ? "badge-active"
+                  : incident.status === "resolved"
+                    ? "badge-resolved"
+                    : "badge-archived"
               )}
             >
               {incident.status}
             </Badge>
-            <span>·</span>
-            <span className="flex items-center gap-0.5">
+            <span className="text-muted-foreground/30">·</span>
+            <span className="flex items-center gap-1 text-muted-foreground font-medium">
               <MapPin className="h-3 w-3" />
               {incident.lat.toFixed(2)}, {incident.lng.toFixed(2)}
             </span>
-            <span>·</span>
-            <span>{incident.radiusKm} km radius</span>
+            <span className="text-muted-foreground/30">·</span>
+            <span className="text-muted-foreground font-medium">{incident.radiusKm} km</span>
           </div>
 
-          <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
+          <p className="mt-3 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {incident.description}
           </p>
         </div>
 
         {/* Request filters + create */}
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-2">
+        <div className="flex items-center justify-between gap-2 border-b border-[#E2E8F0] px-5 py-3">
           <div className="flex items-center gap-2">
             <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
-              <SelectTrigger className="h-7 w-auto text-xs">
+              <SelectTrigger className="h-7 w-auto text-[11px] font-medium rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                 <SelectValue placeholder="Urgency" />
               </SelectTrigger>
               <SelectContent>
@@ -226,7 +233,7 @@ export default function IncidentDetailPage({
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="h-7 w-auto text-xs">
+              <SelectTrigger className="h-7 w-auto text-[11px] font-medium rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
@@ -250,38 +257,37 @@ export default function IncidentDetailPage({
         </div>
 
         {/* Request list */}
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="space-y-2 p-3">
-              {reqLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-md" />
-                ))
-              ) : filteredRequests.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Users className="text-muted-foreground/40 mb-2 h-8 w-8" />
-                  <p className="text-muted-foreground text-sm font-medium">
-                    No resource requests yet
-                  </p>
-                  <p className="text-muted-foreground/60 mt-1 text-xs">
-                    {canPostRequest
-                      ? "Post the first request to coordinate resources"
-                      : "Check back soon for updates"}
-                  </p>
+        <ScrollArea className="flex-1">
+          <div className="space-y-2 p-4">
+            {reqLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-28 w-full rounded-lg" />
+              ))
+            ) : filteredRequests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-3">
+                  <Users className="h-5 w-5 text-muted-foreground/50" />
                 </div>
-              ) : (
-                filteredRequests.map((req) => (
-                  <RequestCard key={req.id} request={req} />
-                ))
-              )}
-            </div>
-          </ScrollArea>
-        </div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  No resource requests yet
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground/60">
+                  {canPostRequest
+                    ? "Post the first request to coordinate resources"
+                    : "Check back soon for updates"}
+                </p>
+              </div>
+            ) : (
+              filteredRequests.map((req) => (
+                <RequestCard key={req.id} request={req} />
+              ))
+            )}
+          </div>
+        </ScrollArea>
 
-        <div className="shrink-0 border-t px-4 py-2">
-          <span className="text-muted-foreground text-xs">
-            {filteredRequests.length} request
-            {filteredRequests.length !== 1 ? "s" : ""}
+        <div className="border-t border-[#E2E8F0] px-5 py-2.5">
+          <span className="text-[11px] font-medium text-muted-foreground tracking-wide">
+            {filteredRequests.length} request{filteredRequests.length !== 1 ? "s" : ""}
           </span>
         </div>
       </aside>

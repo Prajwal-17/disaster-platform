@@ -9,7 +9,6 @@ import { IncidentList } from "@/components/incidents/incident-list";
 import { IncidentFilters } from "@/components/incidents/incident-filters";
 import { CreateIncidentDialog } from "@/components/incidents/create-incident-dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import type { Incident } from "@/lib/api";
 
@@ -63,7 +62,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="icon"
-            className="absolute top-3 right-3 z-[1000] h-8 w-8 bg-white shadow-sm"
+            className="absolute top-3 right-3 z-[1000] h-9 w-9 bg-white shadow-sm border-[#E2E8F0] hover:bg-muted/60"
             onClick={toggleSidebar}
           >
             <PanelRightOpen className="h-4 w-4" />
@@ -85,32 +84,30 @@ export default function DashboardPage() {
 
       {/* Sidebar */}
       {sidebarOpen && (
-        <aside className="flex w-80 shrink-0 flex-col border-l bg-white">
+        <aside className="sidebar-panel flex w-[340px] shrink-0 flex-col border-l border-[#E2E8F0]">
           {/* Sidebar header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b shrink-0">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2E8F0]">
+            <h2 className="text-[13px] font-semibold text-foreground tracking-tight">
+              Incidents
+            </h2>
+            <div className="flex items-center gap-1.5">
+              {canCreateIncident && <CreateIncidentDialog />}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
                 onClick={toggleSidebar}
               >
                 <PanelRightClose className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold">Incidents</h2>
-              {canCreateIncident && <CreateIncidentDialog />}
-            </div>
           </div>
 
           {/* Filters */}
-          <div className="shrink-0">
-            <IncidentFilters />
-          </div>
+          <IncidentFilters />
 
           {/* List */}
-          <div className="flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-hidden">
             <IncidentList
               incidents={filtered}
               isLoading={isLoading}
@@ -120,8 +117,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Count */}
-          <div className="border-t px-3 py-2 shrink-0">
-            <span className="text-xs text-muted-foreground">
+          <div className="border-t border-[#E2E8F0] px-4 py-2.5">
+            <span className="text-[11px] font-medium text-muted-foreground tracking-wide">
               {filtered.length} incident{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>

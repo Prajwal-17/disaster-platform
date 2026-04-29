@@ -14,11 +14,11 @@ L.Icon.Default.mergeOptions({
 });
 
 const INCIDENT_COLORS: Record<string, string> = {
-  flood: "#3b82f6",
-  earthquake: "#ef4444",
-  cyclone: "#8b5cf6",
-  fire: "#f97316",
-  other: "#6b7280",
+  flood: "#3066BE",
+  earthquake: "#C7402D",
+  cyclone: "#7C4DFF",
+  fire: "#E67E22",
+  other: "#64748B",
 };
 
 const STATUS_OPACITY: Record<string, number> = {
@@ -103,12 +103,12 @@ export function MapView({
         opacity: opacity,
       });
 
-      // Tooltip
+      // Tooltip — Geist font
       marker.bindTooltip(
-        `<div style="font-family: 'DM Sans', sans-serif; padding: 2px 0;">
-          <strong style="font-size: 13px;">${incident.title}</strong><br/>
-          <span style="font-size: 11px; text-transform: uppercase; color: ${color}; font-weight: 600;">${incident.type}</span>
-          <span style="font-size: 11px; color: #64748b; margin-left: 6px;">${incident.status}</span>
+        `<div style="font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; padding: 2px 0;">
+          <strong style="font-size: 13px; font-weight: 600; color: #1e293b;">${incident.title}</strong><br/>
+          <span style="font-size: 10px; text-transform: uppercase; color: ${color}; font-weight: 700; letter-spacing: 0.05em;">${incident.type}</span>
+          <span style="font-size: 10px; color: #94a3b8; margin-left: 6px; font-weight: 500;">${incident.status}</span>
         </div>`,
         { direction: "top", offset: [0, -8] }
       );

@@ -17,19 +17,44 @@ import {
 
 const TYPE_CONFIG: Record<
   string,
-  { icon: React.ElementType; color: string; bg: string }
+  { icon: React.ElementType; color: string; bg: string; badgeClass: string }
 > = {
-  flood: { icon: Droplets, color: "text-blue-600", bg: "bg-blue-50" },
-  earthquake: { icon: Mountain, color: "text-red-600", bg: "bg-red-50" },
-  cyclone: { icon: Wind, color: "text-violet-600", bg: "bg-violet-50" },
-  fire: { icon: Flame, color: "text-orange-600", bg: "bg-orange-50" },
-  other: { icon: HelpCircle, color: "text-gray-600", bg: "bg-gray-50" },
+  flood: {
+    icon: Droplets,
+    color: "text-[oklch(0.45_0.16_250)]",
+    bg: "bg-[oklch(0.94_0.04_250)]",
+    badgeClass: "badge-flood",
+  },
+  earthquake: {
+    icon: Mountain,
+    color: "text-[oklch(0.48_0.14_25)]",
+    bg: "bg-[oklch(0.95_0.03_25)]",
+    badgeClass: "badge-earthquake",
+  },
+  cyclone: {
+    icon: Wind,
+    color: "text-[oklch(0.48_0.16_290)]",
+    bg: "bg-[oklch(0.95_0.03_290)]",
+    badgeClass: "badge-cyclone",
+  },
+  fire: {
+    icon: Flame,
+    color: "text-[oklch(0.52_0.18_40)]",
+    bg: "bg-[oklch(0.95_0.04_50)]",
+    badgeClass: "badge-fire",
+  },
+  other: {
+    icon: HelpCircle,
+    color: "text-muted-foreground",
+    bg: "bg-muted",
+    badgeClass: "badge-other",
+  },
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
-  resolved: "bg-gray-100 text-gray-600",
-  archived: "bg-gray-100 text-gray-400",
+const STATUS_BADGE: Record<string, string> = {
+  active: "badge-active",
+  resolved: "badge-resolved",
+  archived: "badge-archived",
 };
 
 type Props = {
@@ -47,9 +72,9 @@ export function IncidentList({
 }: Props) {
   if (isLoading) {
     return (
-      <div className="space-y-2 p-3">
+      <div className="space-y-2 p-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-md" />
+          <Skeleton key={i} className="h-[72px] w-full rounded-lg" />
         ))}
       </div>
     );
@@ -57,8 +82,10 @@ export function IncidentList({
 
   if (incidents.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
-        <MapPin className="text-muted-foreground/40 mb-2 h-8 w-8" />
+      <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-3">
+          <MapPin className="text-muted-foreground/50 h-5 w-5" />
+        </div>
         <p className="text-muted-foreground text-sm font-medium">
           No incidents found
         </p>
@@ -83,43 +110,46 @@ export function IncidentList({
               key={incident.id}
               onClick={() => onSelect(incident)}
               className={cn(
-                "flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition-colors",
-                isSelected
-                  ? "bg-primary/5 ring-primary/20 ring-1"
-                  : "hover:bg-muted/60",
+                "incident-card flex w-full items-start gap-3 text-left",
+                isSelected && "selected",
               )}
             >
               <div
                 className={cn(
-                  "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded",
+                  "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
                   config.bg,
                 )}
               >
-                <Icon className={cn("h-3.5 w-3.5", config.color)} />
+                <Icon className={cn("h-4 w-4", config.color)} />
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-sm font-medium">
+                  <p className="truncate text-[13px] font-semibold text-foreground leading-tight">
                     {incident.title}
                   </p>
                   <Badge
                     variant="secondary"
                     className={cn(
-                      "shrink-0 text-[10px] font-semibold uppercase",
-                      STATUS_STYLES[incident.status],
+                      "shrink-0 text-[10px] font-semibold uppercase tracking-wider border-0",
+                      STATUS_BADGE[incident.status],
                     )}
                   >
                     {incident.status}
                   </Badge>
                 </div>
 
-                <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
-                  <span className={cn("font-medium uppercase", config.color)}>
+                <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-semibold uppercase tracking-wider text-[10px]",
+                      config.badgeClass,
+                    )}
+                  >
                     {incident.type}
                   </span>
-                  <span>·</span>
-                  <span className="flex items-center gap-0.5">
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="flex items-center gap-1 text-muted-foreground font-medium">
                     <Clock className="h-3 w-3" />
                     {timeAgo}
                   </span>
