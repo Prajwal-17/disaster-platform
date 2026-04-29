@@ -12,12 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import authClient from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import {
-  ShieldCheck,
-  Map,
-  LogOut,
-  ChevronDown,
-} from "lucide-react";
+import { Map, LogOut, ChevronDown } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -70,23 +66,31 @@ export function Navbar() {
 
   const roleBadgeStyle = (role: string) => {
     const styles: Record<string, string> = {
-      volunteer: "bg-[oklch(0.92_0.05_250)] text-[oklch(0.38_0.14_250)] border-[oklch(0.88_0.05_250)]",
-      donor: "bg-[oklch(0.92_0.06_155)] text-[oklch(0.35_0.12_155)] border-[oklch(0.88_0.06_155)]",
+      volunteer:
+        "bg-[oklch(0.92_0.05_250)] text-[oklch(0.38_0.14_250)] border-[oklch(0.88_0.05_250)]",
+      donor:
+        "bg-[oklch(0.92_0.06_155)] text-[oklch(0.35_0.12_155)] border-[oklch(0.88_0.06_155)]",
       ngo: "bg-[oklch(0.93_0.05_80)] text-[oklch(0.42_0.12_80)] border-[oklch(0.89_0.05_80)]",
-      admin: "bg-[oklch(0.93_0.04_25)] text-[oklch(0.42_0.14_25)] border-[oklch(0.89_0.04_25)]",
+      admin:
+        "bg-[oklch(0.93_0.04_25)] text-[oklch(0.42_0.14_25)] border-[oklch(0.89_0.04_25)]",
     };
     return styles[role] || "bg-secondary text-secondary-foreground";
   };
 
   return (
-    <header className="navbar-surface flex h-14 shrink-0 items-center justify-between px-5 relative z-50">
+    <header className="navbar-surface relative z-50 flex h-14 shrink-0 items-center justify-between px-5">
       {/* Left */}
       <div className="flex items-center gap-8">
-        <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="logo-mark flex h-8 w-8 items-center justify-center rounded-lg transition-transform group-hover:scale-105">
-            <ShieldCheck className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[15px] font-bold tracking-tight text-foreground">
+        <Link href="/dashboard" className="group flex items-center gap-2.5">
+          <Image
+            src="/disasterlink-logo-cream.jpg"
+            alt="DisasterLink logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg bg-[#FFF8F2] object-contain transition-transform group-hover:scale-105"
+            priority
+          />
+          <span className="text-foreground text-[15px] font-bold tracking-tight">
             DisasterLink
           </span>
         </Link>
@@ -96,7 +100,7 @@ export function Navbar() {
             <Button
               variant={pathname === "/dashboard" ? "secondary" : "ghost"}
               size="sm"
-              className="gap-1.5 text-[13px] font-medium h-8 px-3"
+              className="h-8 gap-1.5 px-3 text-[13px] font-medium"
             >
               <Map className="h-3.5 w-3.5" />
               Map
@@ -110,7 +114,7 @@ export function Navbar() {
         {user && (
           <Badge
             variant="outline"
-            className={`text-[10px] font-semibold uppercase tracking-wider ${roleBadgeStyle(user.role)}`}
+            className={`text-[10px] font-semibold tracking-wider uppercase ${roleBadgeStyle(user.role)}`}
           >
             {user.role}
           </Badge>
@@ -120,26 +124,35 @@ export function Navbar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-8 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/80"
+              className="hover:bg-muted/80 h-8 gap-2 rounded-full pr-2 pl-1"
             >
-              <Avatar className="h-7 w-7 border border-border/50">
-                {user?.image && <AvatarImage src={user.image} alt={user.name || ""} />}
-                <AvatarFallback className={`text-[11px] font-semibold text-white ${getColorFromName(user?.name || "")}`}>
+              <Avatar className="border-border/50 h-7 w-7 border">
+                {user?.image && (
+                  <AvatarImage src={user.image} alt={user.name || ""} />
+                )}
+                <AvatarFallback
+                  className={`text-[11px] font-semibold text-white ${getColorFromName(user?.name || "")}`}
+                >
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              <ChevronDown className="text-muted-foreground h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52 z-[9999] p-1.5">
+          <DropdownMenuContent align="end" className="z-[9999] w-52 p-1.5">
             <div className="px-2.5 py-2">
-              <p className="text-sm font-semibold text-foreground">{user?.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
+              <p className="text-foreground text-sm font-semibold">
+                {user?.name}
+              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs">
+                {user?.email}
+              </p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              variant="destructive"
               onClick={handleSignOut}
-              className="text-destructive gap-2 cursor-pointer"
+              className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 font-semibold tracking-tight"
             >
               <LogOut className="h-3.5 w-3.5" />
               Sign out

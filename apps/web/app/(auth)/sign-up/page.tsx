@@ -14,10 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 const ROLES = [
-  { value: "volunteer", label: "Volunteer", desc: "Respond to resource requests on the ground" },
+  {
+    value: "volunteer",
+    label: "Volunteer",
+    desc: "Respond to resource requests on the ground",
+  },
   { value: "donor", label: "Donor", desc: "Provide resources and funding" },
   { value: "ngo", label: "NGO", desc: "Coordinate incidents and requests" },
 ] as const;
@@ -57,30 +62,38 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="w-full max-w-[400px] animate-fade-in-up">
+    <div className="animate-fade-in-up w-full max-w-[400px]">
       <div className="auth-card px-8 py-10">
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-5 flex items-center justify-center gap-2.5">
-            <div className="logo-mark flex h-10 w-10 items-center justify-center rounded-xl">
-              <ShieldCheck className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">
+            <Image
+              src="/disasterlink-logo-cream.jpg"
+              alt="DisasterLink logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-xl bg-[#FFF8F2] object-contain"
+              priority
+            />
+            <span className="text-foreground text-xl font-bold tracking-tight">
               DisasterLink
             </span>
           </div>
-          <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+          <h1 className="text-foreground text-[22px] font-semibold tracking-tight">
             Create your account
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1.5 text-sm">
             Join the disaster coordination network
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5 stagger-children">
+        <form onSubmit={handleSubmit} className="stagger-children space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[13px] font-medium text-foreground/80">
+            <Label
+              htmlFor="name"
+              className="text-foreground/80 text-[13px] font-medium"
+            >
               Full Name
             </Label>
             <input
@@ -96,7 +109,10 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[13px] font-medium text-foreground/80">
+            <Label
+              htmlFor="email"
+              className="text-foreground/80 text-[13px] font-medium"
+            >
               Email
             </Label>
             <input
@@ -112,7 +128,10 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[13px] font-medium text-foreground/80">
+            <Label
+              htmlFor="password"
+              className="text-foreground/80 text-[13px] font-medium"
+            >
               Password
             </Label>
             <input
@@ -129,9 +148,11 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">Your Role</Label>
+            <Label className="text-foreground/80 text-[13px] font-medium">
+              Your Role
+            </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="h-11 w-full rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)] text-sm focus:border-primary focus:ring-3 focus:ring-primary/12">
+              <SelectTrigger className="focus:border-primary focus:ring-primary/12 h-11 w-full rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)] text-sm focus:ring-3">
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +160,9 @@ export default function SignUpPage() {
                   <SelectItem key={r.value} value={r.value}>
                     <div className="flex flex-col py-0.5">
                       <span className="font-medium">{r.label}</span>
-                      <span className="text-xs text-muted-foreground">{r.desc}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {r.desc}
+                      </span>
                     </div>
                   </SelectItem>
                 ))}
@@ -149,7 +172,7 @@ export default function SignUpPage() {
 
           <Button
             type="submit"
-            className="btn-primary w-full mt-2"
+            className="btn-primary mt-2 w-full"
             disabled={loading}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -159,11 +182,11 @@ export default function SignUpPage() {
       </div>
 
       {/* Footer */}
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-center text-sm">
         Already have an account?{" "}
         <Link
           href="/sign-in"
-          className="font-medium text-primary hover:text-primary/80 transition-colors"
+          className="text-primary hover:text-primary/80 font-medium transition-colors"
         >
           Sign in
         </Link>
