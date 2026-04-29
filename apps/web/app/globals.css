@@ -47,37 +47,35 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ─── Light Mode — Crisp, high-contrast, mission-critical ─── */
+/* ─── Light Mode — Warm, high-contrast, mission-critical ─── */
 :root {
-  /* Deep navy-blue primary — trustworthy, authoritative */
-  --background: oklch(0.98 0.003 250);
-  --foreground: oklch(0.18 0.02 250);
+  /* Heidi-inspired palette adapted to the existing UI */
+  --background: #fff8f2;
+  --foreground: #3c161f;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 250);
+  --card: #ffffff;
+  --card-foreground: #3c161f;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 250);
+  --popover: #ffffff;
+  --popover-foreground: #3c161f;
 
-  /* Deep trustworthy blue — the anchor of the system */
-  --primary: oklch(0.44 0.16 260);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: #3c161f;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.965 0.003 250);
-  --secondary-foreground: oklch(0.28 0.02 250);
+  --secondary: #fff8f2;
+  --secondary-foreground: #3c161f;
 
-  --muted: oklch(0.96 0.003 250);
-  --muted-foreground: oklch(0.46 0.015 250);
+  --muted: #f8f1ec;
+  --muted-foreground: rgb(60 22 31 / 64%);
 
-  --accent: oklch(0.955 0.003 250);
-  --accent-foreground: oklch(0.28 0.02 250);
+  --accent: #fffb7d;
+  --accent-foreground: #3c161f;
 
   --destructive: oklch(0.55 0.22 25);
 
-  /* Refined, visible borders */
-  --border: oklch(0.905 0.006 250);
-  --input: oklch(0.905 0.006 250);
-  --ring: oklch(0.44 0.16 260);
+  --border: #e8e2de;
+  --input: #e8e2de;
+  --ring: #3c161f;
 
   /* Charts */
   --chart-1: oklch(0.44 0.16 260);
@@ -89,14 +87,14 @@
   --radius: 0.5rem;
 
   /* Sidebar */
-  --sidebar: oklch(0.985 0.002 250);
-  --sidebar-foreground: oklch(0.18 0.02 250);
-  --sidebar-primary: oklch(0.44 0.16 260);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.955 0.003 250);
-  --sidebar-accent-foreground: oklch(0.28 0.02 250);
-  --sidebar-border: oklch(0.905 0.006 250);
-  --sidebar-ring: oklch(0.44 0.16 260);
+  --sidebar: #fffdfb;
+  --sidebar-foreground: #3c161f;
+  --sidebar-primary: #3c161f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff8f2;
+  --sidebar-accent-foreground: #3c161f;
+  --sidebar-border: #e8e2de;
+  --sidebar-ring: #3c161f;
 }
 
 /* ─── Base Layer ─── */
@@ -190,20 +188,20 @@
 
 /* ─── Auth Page Surface ─── */
 .auth-surface {
-  background-color: #F8FAFC;
+  background-color: #fff8f2;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.44 0.16 260 / 3%), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, oklch(0.52 0.15 155 / 2%), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(60 22 31 / 4%), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgb(255 251 125 / 22%), transparent);
 }
 
 .auth-card {
   background: white;
   border-radius: 16px;
   box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.04),
-    0 4px 6px -1px rgba(0, 0, 0, 0.06),
-    0 10px 15px -3px rgba(0, 0, 0, 0.04);
-  border: 1px solid oklch(0.92 0.004 250);
+    0 1px 3px 0 rgba(60, 22, 31, 0.04),
+    0 4px 6px -1px rgba(60, 22, 31, 0.06),
+    0 10px 15px -3px rgba(60, 22, 31, 0.04);
+  border: 1px solid #e8e2de;
 }
 
 /* ─── Sidebar Panel ─── */
@@ -254,22 +252,23 @@
 /* ─── Form Input Overrides ─── */
 .input-field {
   height: 44px;
-  border: 1px solid oklch(0.90 0.006 250);
+  border: 1px solid #e8e2de;
   border-radius: 10px;
   padding: 0 14px;
   font-size: 14px;
   transition: border-color 150ms ease, box-shadow 150ms ease;
-  background: oklch(0.995 0.001 250);
+  background: #ffffff;
+  color: #3c161f;
 }
 
 .input-field:focus {
-  border-color: oklch(0.44 0.16 260);
-  box-shadow: 0 0 0 3px oklch(0.44 0.16 260 / 12%);
+  border-color: #3c161f;
+  box-shadow: 0 0 0 3px rgb(60 22 31 / 10%);
   outline: none;
 }
 
 .input-field::placeholder {
-  color: oklch(0.60 0.01 250);
+  color: rgb(60 22 31 / 42%);
 }
 
 /* ─── Textarea Overrides ─── */
@@ -301,7 +300,7 @@
 
 .btn-primary:hover {
   filter: brightness(1.08);
-  box-shadow: 0 2px 8px -2px oklch(0.44 0.16 260 / 30%);
+  box-shadow: 0 2px 8px -2px rgb(60 22 31 / 30%);
 }
 
 .btn-primary:active {
@@ -310,8 +309,8 @@
 
 /* ─── Logo Glow ─── */
 .logo-mark {
-  background: oklch(0.44 0.16 260);
-  box-shadow: 0 2px 8px -1px oklch(0.44 0.16 260 / 25%);
+  background: #3c161f;
+  box-shadow: 0 2px 8px -1px rgb(60 22 31 / 25%);
 }
 
 /* ─── Status Badge Refinements ─── */
