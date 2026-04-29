@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import "dotenv/config";
-import { getDb } from "../src/db";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { createAuth } from "../src/lib/authMiddleware";
 import {
   user,
@@ -14,7 +15,8 @@ const seed = async () => {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) throw new Error("DATABASE_URL is not set");
 
-  const db = getDb(dbUrl);
+  const queryClient = postgres(dbUrl);
+  const db = drizzle(queryClient);
 
   console.log("🌱 Starting database seeding...");
 
@@ -36,9 +38,24 @@ const seed = async () => {
   });
 
   const staticUsersToCreate = [
-    { name: "Test Admin", email: "admin@test.com", password: "password123", role: "admin" },
-    { name: "Test NGO", email: "ngo@test.com", password: "password123", role: "ngo" },
-    { name: "Test Volunteer", email: "volunteer@test.com", password: "password123", role: "volunteer" }
+    {
+      name: "Test Admin",
+      email: "admin@test.com",
+      password: "password123",
+      role: "admin",
+    },
+    {
+      name: "Test NGO",
+      email: "ngo@test.com",
+      password: "password123",
+      role: "ngo",
+    },
+    {
+      name: "Test Volunteer",
+      email: "volunteer@test.com",
+      password: "password123",
+      role: "volunteer",
+    },
   ];
 
   const insertedUsers = [];
@@ -50,8 +67,8 @@ const seed = async () => {
           name: u.name,
           email: u.email,
           password: u.password,
-          role: u.role
-        }
+          role: u.role,
+        },
       });
       console.log(`✅ Created test user: ${u.email} (pwd: ${u.password})`);
       if (res?.user) insertedUsers.push(res.user);
@@ -61,7 +78,14 @@ const seed = async () => {
   }
 
   // Use Faker to create additional dummy users (without passwords for now, just to fill out the tables)
-  const roles: Array<"volunteer" | "donor" | "ngo" | "admin"> = ["volunteer", "volunteer", "volunteer", "donor", "ngo", "admin"];
+  const roles: Array<"volunteer" | "donor" | "ngo" | "admin"> = [
+    "volunteer",
+    "volunteer",
+    "volunteer",
+    "donor",
+    "ngo",
+    "admin",
+  ];
   const fakeUsers = Array.from({ length: 12 }).map(() => ({
     id: faker.string.uuid(),
     name: faker.person.fullName(),
@@ -76,21 +100,30 @@ const seed = async () => {
   insertedUsers.push(...fakeInserted);
 
   // 2. Create Incidents
-  const incidentTypes: Array<"flood" | "earthquake" | "cyclone" | "fire" | "other"> = ["flood", "earthquake", "cyclone", "fire", "other"];
-  const incidentStatuses: Array<"active" | "resolved" | "archived"> = ["active", "active", "active", "resolved"];
+  const incidentTypes: Array<
+    "flood" | "earthquake" | "cyclone" | "fire" | "other"
+  > = ["flood", "earthquake", "cyclone", "fire", "other"];
+  const incidentStatuses: Array<"active" | "resolved" | "archived"> = [
+    "active",
+    "active",
+    "active",
+    "resolved",
+  ];
 
-  const adminOrNgoUsers = insertedUsers.filter((u) => u.role === "ngo" || u.role === "admin");
-  
+  const adminOrNgoUsers = insertedUsers.filter(
+    (u) => u.role === "ngo" || u.role === "admin",
+  );
+
   if (adminOrNgoUsers.length === 0) {
-     console.log("⚠️ No NGO/Admin users generated, skipping incidents seed.");
-     return;
+    console.log("⚠️ No NGO/Admin users generated, skipping incidents seed.");
+    return;
   }
 
   const incidentsData = Array.from({ length: 5 }).map(() => {
     // Generate lat/lng roughly around India
     const lat = faker.location.latitude({ min: 8, max: 37 });
     const lng = faker.location.longitude({ min: 68, max: 97 });
-    
+
     return {
       id: faker.string.uuid(),
       title: faker.lorem.words(3),
@@ -105,11 +138,21 @@ const seed = async () => {
   });
 
   console.log(`🚨 Inserting ${incidentsData.length} incidents...`);
-  const insertedIncidents = await db.insert(incidents).values(incidentsData).returning();
+  const insertedIncidents = await db
+    .insert(incidents)
+    .values(incidentsData)
+    .returning();
 
   // 3. Create Resource Requests
-  const requestTypes: Array<"blood" | "medicine" | "rescue" | "food" | "shelter" | "other"> = ["blood", "medicine", "rescue", "food", "shelter", "other"];
-  const urgencyLevels: Array<"critical" | "high" | "medium" | "low"> = ["critical", "high", "medium", "low"];
+  const requestTypes: Array<
+    "blood" | "medicine" | "rescue" | "food" | "shelter" | "other"
+  > = ["blood", "medicine", "rescue", "food", "shelter", "other"];
+  const urgencyLevels: Array<"critical" | "high" | "medium" | "low"> = [
+    "critical",
+    "high",
+    "medium",
+    "low",
+  ];
 
   const requestsData = Array.from({ length: 20 }).map(() => {
     const incident = faker.helpers.arrayElement(insertedIncidents);
@@ -127,18 +170,31 @@ const seed = async () => {
       lat,
       lng,
       urgency: faker.helpers.arrayElement(urgencyLevels),
-      status: faker.helpers.arrayElement(["open", "open", "in_progress", "fulfilled"]),
+      status: faker.helpers.arrayElement([
+        "open",
+        "open",
+        "in_progress",
+        "fulfilled",
+      ]),
       maxVolunteers: faker.number.int({ min: 1, max: 20 }),
       metadata: { priority: faker.number.int({ min: 1, max: 5 }) },
     };
   });
 
   console.log(`📦 Inserting ${requestsData.length} resource requests...`);
-  const insertedRequests = await db.insert(resourceRequests).values(requestsData).returning();
+  const insertedRequests = await db
+    .insert(resourceRequests)
+    .values(requestsData)
+    .returning();
 
   // 4. Create Volunteer Responses
-  const responseStatuses: Array<"en_route" | "arrived" | "cancelled"> = ["en_route", "arrived"];
-  const volunteerUsers = insertedUsers.filter((u) => u.role === "volunteer" || u.role === "donor");
+  const responseStatuses: Array<"en_route" | "arrived" | "cancelled"> = [
+    "en_route",
+    "arrived",
+  ];
+  const volunteerUsers = insertedUsers.filter(
+    (u) => u.role === "volunteer" || u.role === "donor",
+  );
 
   if (volunteerUsers.length > 0) {
     // Make sure we don't duplicate (requestId, volunteerId) pairs
@@ -179,7 +235,7 @@ const seed = async () => {
       lat,
       lng,
       // Randomize updated_at within the last hour
-      updatedAt: faker.date.recent({ days: 1/24 }),
+      updatedAt: faker.date.recent({ days: 1 / 24 }),
     };
   });
 
@@ -187,6 +243,7 @@ const seed = async () => {
   await db.insert(userLocations).values(locationsData);
 
   console.log("✅ Seeding complete!");
+  process.exit(0);
 };
 
 seed().catch((err) => {

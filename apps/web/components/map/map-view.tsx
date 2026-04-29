@@ -1,37 +1,37 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+/**
+ * MapView — The main Leaflet map with custom markers, impact zones,
+ * and rich popups. Uses modular helpers from map-config, map-markers,
+ * impact-zone, and map-popup.
+ */
+import { useEffect, useRef, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import type { Incident } from "@/lib/api";
+import type { Incident, ResourceRequest } from "@/lib/api";
+import { TILE_URL, TILE_ATTRIBUTION, STATUS_OPACITY } from "./map-config";
+import { createIncidentMarker } from "./map-markers";
+import { createImpactZone } from "./impact-zone";
+import { buildPopupHTML } from "./map-popup";
+import { MapLegend } from "./map-legend";
 
 // Fix default marker icon issue in Next.js/webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
-
-const INCIDENT_COLORS: Record<string, string> = {
-  flood: "#3066BE",
-  earthquake: "#C7402D",
-  cyclone: "#7C4DFF",
-  fire: "#E67E22",
-  other: "#64748B",
-};
-
-const STATUS_OPACITY: Record<string, number> = {
-  active: 1,
-  resolved: 0.5,
-  archived: 0.3,
-};
 
 type MapViewProps = {
   incidents: Incident[];
   center: [number, number];
   zoom: number;
   selectedIncidentId?: string | null;
+  /** Per-incident requests for rich popups (optional) */
+  requestsByIncident?: Record<string, ResourceRequest[]>;
   onIncidentClick?: (incident: Incident) => void;
   onMapMove?: (center: [number, number], zoom: number) => void;
   className?: string;
@@ -42,6 +42,7 @@ export function MapView({
   center,
   zoom,
   selectedIncidentId,
+  requestsByIncident,
   onIncidentClick,
   onMapMove,
   className = "",
@@ -49,6 +50,10 @@ export function MapView({
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+
+  // Stable callback ref for onMapMove
+  const onMapMoveRef = useRef(onMapMove);
+  onMapMoveRef.current = onMapMove;
 
   // Initialize map
   useEffect(() => {
@@ -60,9 +65,9 @@ export function MapView({
       zoomControl: false,
     });
 
-    // Clean light tile layer
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    // Voyager tiles — warmer, modern, great for data overlays
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
     }).addTo(map);
 
@@ -72,7 +77,7 @@ export function MapView({
 
     map.on("moveend", () => {
       const c = map.getCenter();
-      onMapMove?.([c.lat, c.lng], map.getZoom());
+      onMapMoveRef.current?.([c.lat, c.lng], map.getZoom());
     });
 
     mapRef.current = map;
@@ -90,47 +95,59 @@ export function MapView({
     markersRef.current.clearLayers();
 
     incidents.forEach((incident) => {
-      const color = INCIDENT_COLORS[incident.type] || INCIDENT_COLORS.other;
       const opacity = STATUS_OPACITY[incident.status] || 1;
       const isSelected = incident.id === selectedIncidentId;
 
-      const marker = L.circleMarker([incident.lat, incident.lng], {
-        radius: isSelected ? 12 : 8,
-        fillColor: color,
-        color: isSelected ? "#1e293b" : color,
-        weight: isSelected ? 3 : 2,
-        fillOpacity: opacity * 0.7,
-        opacity: opacity,
+      // ── Impact zone circles (active incidents only) ──────────────
+      if (incident.status === "active") {
+        const zones = createImpactZone(
+          incident.lat,
+          incident.lng,
+          incident.radiusKm,
+          incident.type,
+          { interactive: true },
+        );
+        zones.forEach((zone) => {
+          zone.on("click", () => onIncidentClick?.(incident));
+          zone.setStyle({ fillOpacity: zone.options.fillOpacity! * opacity });
+          markersRef.current!.addLayer(zone);
+        });
+      }
+
+      // ── Custom SVG marker ──────────────────────────────────────
+      const icon = createIncidentMarker(incident.type, {
+        selected: isSelected,
+        status: incident.status,
       });
 
-      // Tooltip — Geist font
+      const marker = L.marker([incident.lat, incident.lng], {
+        icon,
+        opacity,
+        zIndexOffset: isSelected ? 1000 : 0,
+      });
+
+      // Rich popup
+      const requests = requestsByIncident?.[incident.id];
+      const popupHTML = buildPopupHTML(incident, requests);
+      marker.bindPopup(popupHTML, {
+        maxWidth: 300,
+        minWidth: 220,
+        className: "incident-popup",
+        closeButton: true,
+      });
+
+      // Tooltip on hover (quick glance)
       marker.bindTooltip(
-        `<div style="font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; padding: 2px 0;">
-          <strong style="font-size: 13px; font-weight: 600; color: #1e293b;">${incident.title}</strong><br/>
-          <span style="font-size: 10px; text-transform: uppercase; color: ${color}; font-weight: 700; letter-spacing: 0.05em;">${incident.type}</span>
-          <span style="font-size: 10px; color: #94a3b8; margin-left: 6px; font-weight: 500;">${incident.status}</span>
+        `<div style="font-family:'Geist',ui-sans-serif,system-ui,sans-serif;padding:2px 0;">
+          <strong style="font-size:13px;font-weight:600;color:#1e293b;">${incident.title}</strong>
         </div>`,
-        { direction: "top", offset: [0, -8] }
+        { direction: "top", offset: [0, -24] },
       );
 
       marker.on("click", () => onIncidentClick?.(incident));
       markersRef.current!.addLayer(marker);
-
-      // Draw radius circle for active incidents
-      if (incident.status === "active") {
-        const radiusCircle = L.circle([incident.lat, incident.lng], {
-          radius: incident.radiusKm * 1000,
-          fillColor: color,
-          fillOpacity: 0.04,
-          color: color,
-          weight: 1,
-          opacity: 0.2,
-          dashArray: "4 4",
-        });
-        markersRef.current!.addLayer(radiusCircle);
-      }
     });
-  }, [incidents, selectedIncidentId, onIncidentClick]);
+  }, [incidents, selectedIncidentId, onIncidentClick, requestsByIncident]);
 
   // Fly to selected incident
   useEffect(() => {
@@ -144,10 +161,13 @@ export function MapView({
   }, [selectedIncidentId, incidents]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`h-full w-full ${className}`}
-      style={{ minHeight: "300px" }}
-    />
+    <div className={`relative h-full w-full ${className}`}>
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        style={{ minHeight: "300px" }}
+      />
+      <MapLegend />
+    </div>
   );
 }

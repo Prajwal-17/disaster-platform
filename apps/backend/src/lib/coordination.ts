@@ -1,7 +1,10 @@
 import { DurableObject } from "cloudflare:workers";
 import { jwtVerify, createRemoteJWKSet } from "jose";
-import type { CloudflareBindings, WSConnectionState, WSEvent } from "../types";
+import type { CloudflareBindings, WSConnectionState, WSEvent, ChatMessage } from "../types";
 import { WS_EVENT } from "../types";
+
+const MAX_CHAT_HISTORY = 50;
+const CHAT_STORAGE_KEY = "chat_messages";
 
 /**
  * DisasterCoordination Durable Object
@@ -17,6 +20,7 @@ import { WS_EVENT } from "../types";
  *  2. Broadcast resource request events to all subscribers in the incident
  *  3. Relay live location pings to nearby peers
  *  4. Handle cleanup on disconnect
+ *  5. Incident-scoped live chat with message history
  */
 export class DisasterCoordination extends DurableObject<CloudflareBindings> {
   async fetch(request: Request): Promise<Response> {
@@ -29,7 +33,7 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
     }
 
     // Verify JWT before upgrading
-    let payload: { id: string; email: string; role: string };
+    let payload: { id: string; email: string; role: string; name?: string };
     try {
       const JWKS = createRemoteJWKSet(
         new URL(`${this.env.BETTER_AUTH_URL}/api/auth/jwks`)
@@ -52,6 +56,7 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
     // Persist connection state (survives hibernation)
     const state: WSConnectionState = {
       userId: payload.id,
+      userName: payload.name || payload.email || "Anonymous",
       role: payload.role as WSConnectionState["role"],
       incidentId,
     };
@@ -66,12 +71,23 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
       })
     );
 
+    // Send chat history to new joiner
+    const history = await this.getChatHistory();
+    if (history.length > 0) {
+      server!.send(
+        JSON.stringify({
+          type: WS_EVENT.CHAT_HISTORY,
+          messages: history,
+        })
+      );
+    }
+
     return new Response(null, { status: 101, webSocket: client });
   }
 
   // ─── Incoming Messages ──────────────────────────────────────────────────────
 
-  webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): void {
+  async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
     let data: { type: WSEvent; [key: string]: unknown };
 
     try {
@@ -133,6 +149,39 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
         break;
       }
 
+      // ── Chat message — store + broadcast ───────────────────────────────────
+      case WS_EVENT.CHAT_MESSAGE: {
+        const text = typeof data.text === "string" ? data.text.trim() : "";
+        if (!text || text.length > 500) {
+          ws.send(
+            JSON.stringify({
+              type: WS_EVENT.ERROR,
+              message: "Chat message must be 1-500 characters",
+            })
+          );
+          break;
+        }
+
+        const chatMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          userId: state.userId,
+          userName: state.userName,
+          role: state.role,
+          text,
+          timestamp: Date.now(),
+        };
+
+        // Store in DO storage
+        await this.storeChatMessage(chatMsg);
+
+        // Broadcast to ALL (including sender for confirmation)
+        this.broadcastToAll({
+          type: WS_EVENT.CHAT_BROADCAST,
+          message: chatMsg,
+        });
+        break;
+      }
+
       default: {
         ws.send(
           JSON.stringify({
@@ -163,11 +212,11 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
     console.error(`[DisasterCoordination] WebSocket error:`, error);
   }
 
-  // ─── Broadcast Helper ───────────────────────────────────────────────────────
+  // ─── Broadcast Helpers ──────────────────────────────────────────────────────
 
   /**
-   * Send a message to all WebSocket connections in this DO instance
-   * (i.e. all subscribers to this incident), excluding the sender.
+   * Send a message to all WebSocket connections in this DO instance,
+   * excluding the sender.
    */
   broadcastToIncident(senderId: string, payload: object): void {
     const sockets = this.ctx.getWebSockets();
@@ -182,5 +231,42 @@ export class DisasterCoordination extends DurableObject<CloudflareBindings> {
         // Socket may have closed between getWebSockets() and send()
       }
     }
+  }
+
+  /**
+   * Send a message to ALL WebSocket connections (including sender).
+   * Used for chat so sender gets confirmation.
+   */
+  broadcastToAll(payload: object): void {
+    const sockets = this.ctx.getWebSockets();
+    const msg = JSON.stringify(payload);
+
+    for (const socket of sockets) {
+      try {
+        socket.send(msg);
+      } catch {
+        // Socket may have closed
+      }
+    }
+  }
+
+  // ─── Chat Storage ───────────────────────────────────────────────────────────
+
+  async getChatHistory(): Promise<ChatMessage[]> {
+    const stored = await this.ctx.storage.get<ChatMessage[]>(CHAT_STORAGE_KEY);
+    return stored ?? [];
+  }
+
+  async storeChatMessage(msg: ChatMessage): Promise<void> {
+    const history = await this.getChatHistory();
+    history.push(msg);
+
+    // Keep only last N messages
+    const trimmed =
+      history.length > MAX_CHAT_HISTORY
+        ? history.slice(-MAX_CHAT_HISTORY)
+        : history;
+
+    await this.ctx.storage.put(CHAT_STORAGE_KEY, trimmed);
   }
 }

@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useCreateIncident } from "@/lib/queries";
-import { useMapStore } from "@/lib/stores/map-store";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,16 +16,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCreateIncident } from "@/lib/queries";
+import { useMapStore } from "@/lib/stores/map-store";
+import {
+  Droplets,
+  Flame,
+  HelpCircle,
+  Loader2,
+  Mountain,
+  Plus,
+  Wind,
+} from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Plus } from "lucide-react";
+
+// Dynamic import to avoid SSR issues with Leaflet
+const LocationPicker = dynamic(
+  () =>
+    import("@/components/map/location-picker").then((m) => m.LocationPicker),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted h-[240px] w-full animate-pulse rounded-xl" />
+    ),
+  },
+);
+
+const TYPE_OPTIONS = [
+  { value: "flood", label: "Flood", icon: Droplets },
+  { value: "earthquake", label: "Earthquake", icon: Mountain },
+  { value: "cyclone", label: "Cyclone", icon: Wind },
+  { value: "fire", label: "Fire", icon: Flame },
+  { value: "other", label: "Other", icon: HelpCircle },
+] as const;
 
 export function CreateIncidentDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("flood");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
   const [radiusKm, setRadiusKm] = useState("10");
   const center = useMapStore((s) => s.center);
 
@@ -37,8 +66,8 @@ export function CreateIncidentDialog() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const latNum = parseFloat(lat) || center[0];
-    const lngNum = parseFloat(lng) || center[1];
+    const latNum = lat ?? center[0];
+    const lngNum = lng ?? center[1];
 
     createIncident.mutate(
       {
@@ -58,7 +87,7 @@ export function CreateIncidentDialog() {
         onError: (err) => {
           toast.error(err.message || "Failed to create incident");
         },
-      }
+      },
     );
   };
 
@@ -66,34 +95,35 @@ export function CreateIncidentDialog() {
     setTitle("");
     setDescription("");
     setType("flood");
-    setLat("");
-    setLng("");
+    setLat(null);
+    setLng(null);
     setRadiusKm("10");
   };
 
-  const useCurrentMapCenter = () => {
-    setLat(String(center[0].toFixed(4)));
-    setLng(String(center[1].toFixed(4)));
-  };
+  const SelectedIcon =
+    TYPE_OPTIONS.find((t) => t.value === type)?.icon || HelpCircle;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5 h-7 text-[12px] font-semibold">
+        <Button size="sm" className="h-7 gap-1.5 text-[12px] font-semibold">
           <Plus className="h-3.5 w-3.5" />
           New
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
             Report New Incident
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 mt-1">
+        <form onSubmit={handleSubmit} className="mt-1 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="inc-title" className="text-[13px] font-medium text-foreground/80">
+            <Label
+              htmlFor="inc-title"
+              className="text-foreground/80 text-[13px] font-medium"
+            >
               Title
             </Label>
             <input
@@ -107,7 +137,10 @@ export function CreateIncidentDialog() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="inc-desc" className="text-[13px] font-medium text-foreground/80">
+            <Label
+              htmlFor="inc-desc"
+              className="text-foreground/80 text-[13px] font-medium"
+            >
               Description
             </Label>
             <textarea
@@ -123,23 +156,30 @@ export function CreateIncidentDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Type</Label>
+              <Label className="text-foreground/80 text-[13px] font-medium">
+                Type
+              </Label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
-                  <SelectValue />
+                  <div className="flex items-center gap-2">
+                    <SelectedIcon className="text-muted-foreground h-3.5 w-3.5" />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="flood">Flood</SelectItem>
-                  <SelectItem value="earthquake">Earthquake</SelectItem>
-                  <SelectItem value="cyclone">Cyclone</SelectItem>
-                  <SelectItem value="fire">Fire</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {TYPE_OPTIONS.map(({ value, label, icon: Icon }) => (
+                    <SelectItem key={value} value={value}>
+                      <div className="flex items-center gap-2">{label}</div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Radius (km)</Label>
+              <Label className="text-foreground/80 text-[13px] font-medium">
+                Radius (km)
+              </Label>
               <input
                 type="number"
                 value={radiusKm}
@@ -152,38 +192,18 @@ export function CreateIncidentDialog() {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-[13px] font-medium text-foreground/80">Location</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs text-primary font-medium hover:text-primary/80"
-                onClick={useCurrentMapCenter}
-              >
-                Use map center
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="number"
-                step="any"
-                placeholder="Latitude"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                required
-                className="input-field w-full"
-              />
-              <input
-                type="number"
-                step="any"
-                placeholder="Longitude"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                required
-                className="input-field w-full"
-              />
-            </div>
+            <Label className="text-foreground/80 text-[13px] font-medium">
+              Location
+            </Label>
+            <LocationPicker
+              initialLat={center[0]}
+              initialLng={center[1]}
+              onChange={(newLat, newLng) => {
+                setLat(newLat);
+                setLng(newLng);
+              }}
+              height={200}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

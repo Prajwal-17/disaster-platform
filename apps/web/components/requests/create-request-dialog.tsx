@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useCreateRequest } from "@/lib/queries";
 import {
   Dialog,
@@ -19,7 +20,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Droplet,
+  Pill,
+  LifeBuoy,
+  Utensils,
+  Home,
+  Package,
+  AlertTriangle,
+  AlertCircle,
+  Info,
+  CheckCircle,
+} from "lucide-react";
+
+const LocationPicker = dynamic(
+  () =>
+    import("@/components/map/location-picker").then((m) => m.LocationPicker),
+  { ssr: false, loading: () => <div className="h-[200px] w-full rounded-xl bg-muted animate-pulse" /> },
+);
+
+const RESOURCE_OPTIONS = [
+  { value: "blood", label: "Blood", icon: Droplet },
+  { value: "medicine", label: "Medicine", icon: Pill },
+  { value: "rescue", label: "Rescue", icon: LifeBuoy },
+  { value: "food", label: "Food", icon: Utensils },
+  { value: "shelter", label: "Shelter", icon: Home },
+  { value: "other", label: "Other", icon: Package },
+] as const;
+
+const URGENCY_OPTIONS = [
+  { value: "critical", label: "Critical", icon: AlertTriangle },
+  { value: "high", label: "High", icon: AlertCircle },
+  { value: "medium", label: "Medium", icon: Info },
+  { value: "low", label: "Low", icon: CheckCircle },
+] as const;
 
 type Props = {
   incidentId: string;
@@ -37,8 +73,8 @@ export function CreateRequestDialog({
   const [description, setDescription] = useState("");
   const [type, setType] = useState("food");
   const [urgency, setUrgency] = useState("medium");
-  const [lat, setLat] = useState(String(incidentLat));
-  const [lng, setLng] = useState(String(incidentLng));
+  const [lat, setLat] = useState(incidentLat);
+  const [lng, setLng] = useState(incidentLng);
   const [maxVolunteers, setMaxVolunteers] = useState("10");
 
   const createReq = useCreateRequest(incidentId);
@@ -50,8 +86,8 @@ export function CreateRequestDialog({
         title,
         description,
         type,
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
+        lat,
+        lng,
         urgency,
         maxVolunteers: parseInt(maxVolunteers, 10),
       },
@@ -64,7 +100,7 @@ export function CreateRequestDialog({
         onError: (err) => {
           toast.error(err.message || "Failed to create request");
         },
-      }
+      },
     );
   };
 
@@ -73,10 +109,15 @@ export function CreateRequestDialog({
     setDescription("");
     setType("food");
     setUrgency("medium");
-    setLat(String(incidentLat));
-    setLng(String(incidentLng));
+    setLat(incidentLat);
+    setLng(incidentLng);
     setMaxVolunteers("10");
   };
+
+  const SelectedResourceIcon =
+    RESOURCE_OPTIONS.find((r) => r.value === type)?.icon || Package;
+  const SelectedUrgencyIcon =
+    URGENCY_OPTIONS.find((u) => u.value === urgency)?.icon || Info;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -86,7 +127,7 @@ export function CreateRequestDialog({
           Post Request
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
             Post Resource Request
@@ -95,7 +136,9 @@ export function CreateRequestDialog({
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-1">
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">Title</Label>
+            <Label className="text-[13px] font-medium text-foreground/80">
+              Title
+            </Label>
             <input
               placeholder="e.g. Need 5 units O+ blood"
               value={title}
@@ -106,7 +149,9 @@ export function CreateRequestDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">Description</Label>
+            <Label className="text-[13px] font-medium text-foreground/80">
+              Description
+            </Label>
             <textarea
               placeholder="Provide details about the request..."
               value={description}
@@ -119,72 +164,82 @@ export function CreateRequestDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Resource Type</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">
+                Resource Type
+              </Label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
-                  <SelectValue />
+                  <div className="flex items-center gap-2">
+                    <SelectedResourceIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="blood">Blood</SelectItem>
-                  <SelectItem value="medicine">Medicine</SelectItem>
-                  <SelectItem value="rescue">Rescue</SelectItem>
-                  <SelectItem value="food">Food</SelectItem>
-                  <SelectItem value="shelter">Shelter</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {RESOURCE_OPTIONS.map(({ value, label, icon: Icon }) => (
+                    <SelectItem key={value} value={value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Urgency</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">
+                Urgency
+              </Label>
               <Select value={urgency} onValueChange={setUrgency}>
                 <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
-                  <SelectValue />
+                  <div className="flex items-center gap-2">
+                    <SelectedUrgencyIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="critical">Critical</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  {URGENCY_OPTIONS.map(({ value, label, icon: Icon }) => (
+                    <SelectItem key={value} value={value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Latitude</Label>
-              <input
-                type="number"
-                step="any"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                required
-                className="input-field w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Longitude</Label>
-              <input
-                type="number"
-                step="any"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                required
-                className="input-field w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">Max Vol.</Label>
-              <input
-                type="number"
-                value={maxVolunteers}
-                onChange={(e) => setMaxVolunteers(e.target.value)}
-                min={1}
-                max={100}
-                className="input-field w-full"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label className="text-[13px] font-medium text-foreground/80">
+              Max Volunteers
+            </Label>
+            <input
+              type="number"
+              value={maxVolunteers}
+              onChange={(e) => setMaxVolunteers(e.target.value)}
+              min={1}
+              max={100}
+              className="input-field w-full"
+            />
+          </div>
+
+          {/* Map-based location picker */}
+          <div className="space-y-2">
+            <Label className="text-[13px] font-medium text-foreground/80">
+              Location
+            </Label>
+            <LocationPicker
+              initialLat={incidentLat}
+              initialLng={incidentLng}
+              onChange={(newLat, newLng) => {
+                setLat(newLat);
+                setLng(newLng);
+              }}
+              height={180}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

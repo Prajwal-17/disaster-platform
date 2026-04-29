@@ -51,6 +51,7 @@ export const WS_EVENT = {
   REQUEST_CREATE: "REQUEST_CREATE",
   REQUEST_UPDATE: "REQUEST_UPDATE",
   LOCATION_PING: "LOCATION_PING",
+  CHAT_MESSAGE: "CHAT_MESSAGE",
 
   // Server → Client
   SUBSCRIBED: "SUBSCRIBED",
@@ -58,6 +59,8 @@ export const WS_EVENT = {
   REQUEST_UPDATED: "REQUEST_UPDATED",
   VOLUNTEER_WARNING: "VOLUNTEER_WARNING",
   PEER_LOCATION: "PEER_LOCATION",
+  CHAT_BROADCAST: "CHAT_BROADCAST",
+  CHAT_HISTORY: "CHAT_HISTORY",
   ERROR: "ERROR",
 } as const;
 
@@ -65,6 +68,16 @@ export type WSEvent = (typeof WS_EVENT)[keyof typeof WS_EVENT];
 
 export type WSConnectionState = {
   userId: string;
+  userName: string;
   role: UserRole;
   incidentId: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  userId: string;
+  userName: string;
+  role: UserRole;
+  text: string;
+  timestamp: number;
 };
