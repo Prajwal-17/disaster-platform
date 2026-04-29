@@ -83,7 +83,7 @@ export type VolunteerResponse = {
   updatedAt: string;
 };
 
-export function getIncidents(params?: {
+export async function getIncidents(params?: {
   status?: string;
   lat?: number;
   lng?: number;
@@ -95,7 +95,8 @@ export function getIncidents(params?: {
   if (params?.lng) query.set("lng", String(params.lng));
   if (params?.radius_km) query.set("radius_km", String(params.radius_km));
   const qs = query.toString();
-  return apiFetch<Incident[]>(`/api/incidents${qs ? `?${qs}` : ""}`);
+  const res = await apiFetch<{ incidents: Incident[] }>(`/api/incidents${qs ? `?${qs}` : ""}`);
+  return res.incidents;
 }
 
 export function getIncident(id: string) {
@@ -125,7 +126,7 @@ export function updateIncident(id: string, data: Partial<Incident>) {
 
 // ─── Resource Requests ────────────────────────────────────────────────────────
 
-export function getRequests(
+export async function getRequests(
   incidentId: string,
   params?: { status?: string; type?: string; urgency?: string }
 ) {
@@ -134,9 +135,10 @@ export function getRequests(
   if (params?.type) query.set("type", params.type);
   if (params?.urgency) query.set("urgency", params.urgency);
   const qs = query.toString();
-  return apiFetch<ResourceRequest[]>(
+  const res = await apiFetch<{ requests: ResourceRequest[] }>(
     `/api/incidents/${incidentId}/requests${qs ? `?${qs}` : ""}`
   );
+  return res.requests;
 }
 
 export function createRequest(
@@ -200,10 +202,11 @@ export function withdrawResponse(requestId: string) {
   );
 }
 
-export function getVolunteers(requestId: string) {
-  return apiFetch<VolunteerResponse[]>(
+export async function getVolunteers(requestId: string) {
+  const res = await apiFetch<{ volunteers: VolunteerResponse[] }>(
     `/api/requests/${requestId}/volunteers`
   );
+  return res.volunteers;
 }
 
 // ─── Location ─────────────────────────────────────────────────────────────────
@@ -215,8 +218,9 @@ export function updateLocation(lat: number, lng: number) {
   });
 }
 
-export function getNearbyLocations(lat: number, lng: number, radiusKm = 10) {
-  return apiFetch<unknown[]>(
+export async function getNearbyLocations(lat: number, lng: number, radiusKm = 10) {
+  const res = await apiFetch<{ locations: unknown[] }>(
     `/api/location/nearby?lat=${lat}&lng=${lng}&radius_km=${radiusKm}`
   );
+  return res.locations;
 }
