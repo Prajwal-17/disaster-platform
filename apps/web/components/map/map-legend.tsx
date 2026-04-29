@@ -8,8 +8,8 @@ import { LEGEND_ITEMS } from "./map-config";
 
 export function MapLegend() {
   return (
-    <div className="absolute bottom-20 left-3 z-[1000] rounded-xl border border-border/60 bg-white/90 px-3 py-2.5 shadow-lg backdrop-blur-sm">
-      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+    <div className="absolute top-6 left-6 z-[1000] rounded-2xl border border-border/40 bg-background/95 px-4 py-4 shadow-xl backdrop-blur-md min-w-[160px]">
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
         Incident Types
       </p>
       <div className="space-y-1">

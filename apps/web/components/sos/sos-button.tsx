@@ -20,7 +20,7 @@ export function SOSButton({ incidents }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="absolute bottom-24 left-4 z-[1000] flex items-center gap-2 rounded-full bg-red-600 px-4 py-2.5 text-white shadow-lg transition-all hover:bg-red-700 hover:shadow-xl active:scale-95 sos-pulse"
+        className="absolute bottom-8 left-6 z-[1000] flex items-center gap-2.5 rounded-full bg-red-600 px-5 py-3 text-white shadow-[0_8px_30px_rgb(220,38,38,0.4)] transition-all hover:bg-red-700 hover:shadow-[0_8px_30px_rgb(220,38,38,0.6)] active:scale-95 sos-pulse"
         title="Send SOS — Request emergency help"
       >
         <AlertTriangle className="h-4 w-4" />

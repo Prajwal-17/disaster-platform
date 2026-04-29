@@ -79,30 +79,17 @@ export function Navbar() {
   };
 
   return (
-    <header className="navbar-surface flex h-14 shrink-0 items-center justify-between px-5 relative z-50">
+    <header className="flex h-16 shrink-0 items-center justify-between px-6 relative z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm">
       {/* Left */}
       <div className="flex items-center gap-8">
-        <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="logo-mark flex h-8 w-8 items-center justify-center rounded-lg transition-transform group-hover:scale-105">
-            <ShieldCheck className="h-4 w-4 text-white" />
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="logo-mark flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md transition-transform group-hover:scale-105">
+            <ShieldCheck className="h-5 w-5" />
           </div>
-          <span className="text-[15px] font-bold tracking-tight text-foreground">
+          <span className="text-lg font-bold tracking-tight text-foreground">
             DisasterLink
           </span>
         </Link>
-
-        <nav className="flex items-center gap-1">
-          <Link href="/dashboard">
-            <Button
-              variant={pathname === "/dashboard" ? "secondary" : "ghost"}
-              size="sm"
-              className="gap-1.5 text-[13px] font-medium h-8 px-3"
-            >
-              <Map className="h-3.5 w-3.5" />
-              Map
-            </Button>
-          </Link>
-        </nav>
       </div>
 
       {/* Right */}

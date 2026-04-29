@@ -12,6 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerTrigger,
+  DrawerClose,
+} from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIncident, useRequests } from "@/lib/queries";
 import { useAuthStore } from "@/lib/stores/auth-store";
@@ -37,6 +46,9 @@ import {
   Users,
   Utensils,
   Wind,
+  ChevronUp,
+  List,
+  X,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -211,21 +223,27 @@ export default function IncidentDetailPage({
   const sidebarContent = (
     <>
       {/* Header */}
-      <div className="border-b border-[#E2E8F0] px-5 py-4">
-        <div className="mb-3 flex items-center gap-2.5">
+      <div className="border-b border-[#E2E8F0] px-5 py-4 bg-muted/20">
+        <div className="mb-4">
           <Button
             variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground h-8 w-8"
+            size="sm"
+            className="-ml-2 h-7 text-muted-foreground hover:text-foreground text-xs font-medium"
             onClick={() => router.push("/dashboard")}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+            Back to all incidents
           </Button>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-foreground truncate text-base font-bold tracking-tight">
-              {incident.title}
-            </h1>
+        </div>
+        <div className="mb-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              Incident Details
+            </span>
           </div>
+          <h1 className="text-foreground text-xl font-bold tracking-tight leading-tight">
+            {incident.title}
+          </h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
@@ -274,7 +292,6 @@ export default function IncidentDetailPage({
           <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
             <SelectTrigger className="h-7 w-auto rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)] text-[11px] font-medium">
               <div className="flex items-center gap-1.5">
-                <SelectedUrgencyIcon className="text-muted-foreground h-3 w-3" />
                 <SelectValue placeholder="Urgency" />
               </div>
             </SelectTrigger>
@@ -292,7 +309,6 @@ export default function IncidentDetailPage({
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="h-7 w-auto rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)] text-[11px] font-medium">
               <div className="flex items-center gap-1.5">
-                <SelectedTypeIcon className="text-muted-foreground h-3 w-3" />
                 <SelectValue placeholder="Type" />
               </div>
             </SelectTrigger>
@@ -358,12 +374,11 @@ export default function IncidentDetailPage({
     </>
   );
 
-  // ── Mobile layout — stacked ──────────────────────────────────────
+  // ── Mobile layout — drawer ──────────────────────────────────────
   if (isMobile) {
     return (
-      <div className="flex h-full flex-col">
-        {/* Map — 40vh */}
-        <div className="relative" style={{ height: "40vh" }}>
+      <div className="relative h-full w-full overflow-hidden bg-background">
+        <div className="absolute inset-0 z-0">
           <MapView
             incidents={[incident]}
             center={[incident.lat, incident.lng]}
@@ -371,9 +386,35 @@ export default function IncidentDetailPage({
             selectedIncidentId={incident.id}
           />
         </div>
-        {/* Scrollable detail panel */}
-        <div className="bg-background flex flex-1 flex-col overflow-hidden">
-          {sidebarContent}
+
+        {/* Floating Top Controls */}
+        <div className="absolute top-4 left-4 z-[10]">
+          <Button size="icon" variant="outline" className="h-10 w-10 rounded-full bg-background/95 backdrop-blur-md shadow-md border-border/50" onClick={() => router.push("/dashboard")}>
+             <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="absolute bottom-6 left-4 right-4 z-[10]">
+          <Drawer defaultOpen={true}>
+            <DrawerTrigger asChild>
+              <Button className="w-full h-14 rounded-2xl shadow-xl flex items-center justify-between px-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                <div className="flex flex-col items-start min-w-0 flex-1 mr-4">
+                  <span className="font-bold text-sm truncate w-full text-left">{incident.title}</span>
+                  <span className="text-[10px] uppercase font-semibold text-primary-foreground/80 tracking-wider mt-0.5">
+                    {filteredRequests.length} Request{filteredRequests.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <div className="shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-primary-foreground/20">
+                   <ChevronUp className="h-4 w-4" />
+                </div>
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="max-h-[85vh] bg-background">
+              <div className="flex-1 overflow-y-auto min-h-0 bg-background rounded-t-[10px] pb-6">
+                {sidebarContent}
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
     );

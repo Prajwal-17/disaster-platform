@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { useCreateRequest } from "@/lib/queries";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,26 +16,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { useCreateRequest } from "@/lib/queries";
 import {
-  Loader2,
-  Plus,
-  Droplet,
-  Pill,
-  LifeBuoy,
-  Utensils,
-  Home,
-  Package,
-  AlertTriangle,
   AlertCircle,
-  Info,
+  AlertTriangle,
   CheckCircle,
+  Droplet,
+  Home,
+  Info,
+  LifeBuoy,
+  Loader2,
+  Package,
+  Pill,
+  Plus,
+  Utensils,
 } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const LocationPicker = dynamic(
   () =>
     import("@/components/map/location-picker").then((m) => m.LocationPicker),
-  { ssr: false, loading: () => <div className="h-[200px] w-full rounded-xl bg-muted animate-pulse" /> },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted h-[200px] w-full animate-pulse rounded-xl" />
+    ),
+  },
 );
 
 const RESOURCE_OPTIONS = [
@@ -122,21 +127,21 @@ export function CreateRequestDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5 h-7 text-[12px] font-semibold">
+        <Button size="sm" className="h-7 gap-1.5 text-[12px] font-semibold">
           <Plus className="h-3.5 w-3.5" />
           Post Request
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
             Post Resource Request
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 mt-1">
+        <form onSubmit={handleSubmit} className="mt-1 space-y-5">
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">
+            <Label className="text-foreground/80 text-[13px] font-medium">
               Title
             </Label>
             <input
@@ -149,7 +154,7 @@ export function CreateRequestDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">
+            <Label className="text-foreground/80 text-[13px] font-medium">
               Description
             </Label>
             <textarea
@@ -164,13 +169,12 @@ export function CreateRequestDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">
+              <Label className="text-foreground/80 text-[13px] font-medium">
                 Resource Type
               </Label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                   <div className="flex items-center gap-2">
-                    <SelectedResourceIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     <SelectValue />
                   </div>
                 </SelectTrigger>
@@ -188,13 +192,12 @@ export function CreateRequestDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-foreground/80">
+              <Label className="text-foreground/80 text-[13px] font-medium">
                 Urgency
               </Label>
               <Select value={urgency} onValueChange={setUrgency}>
                 <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                   <div className="flex items-center gap-2">
-                    <SelectedUrgencyIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     <SelectValue />
                   </div>
                 </SelectTrigger>
@@ -213,7 +216,7 @@ export function CreateRequestDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">
+            <Label className="text-foreground/80 text-[13px] font-medium">
               Max Volunteers
             </Label>
             <input
@@ -228,7 +231,7 @@ export function CreateRequestDialog({
 
           {/* Map-based location picker */}
           <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">
+            <Label className="text-foreground/80 text-[13px] font-medium">
               Location
             </Label>
             <LocationPicker

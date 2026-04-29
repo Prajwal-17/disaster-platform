@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useMapStore } from "@/lib/stores/map-store";
+import { cn } from "@/lib/utils";
 import {
   Droplets,
   Mountain,
@@ -39,7 +40,7 @@ const STATUS_OPTIONS = [
   { value: "resolved", label: "Resolved", icon: CheckCircle },
 ] as const;
 
-export function IncidentFilters() {
+export function IncidentFilters({ className }: { className?: string }) {
   const filters = useMapStore((s) => s.filters);
   const setFilters = useMapStore((s) => s.setFilters);
 
@@ -51,7 +52,7 @@ export function IncidentFilters() {
   };
 
   return (
-    <div className="flex items-center gap-2 border-b border-[#E2E8F0] px-4 py-3">
+    <div className={cn("flex items-center gap-2 border-b border-[#E2E8F0] px-4 py-3", className)}>
       <Select
         value={filters.status}
         onValueChange={(v) =>

@@ -11,7 +11,15 @@ import { IncidentFilters } from "@/components/incidents/incident-filters";
 import { CreateIncidentDialog } from "@/components/incidents/create-incident-dialog";
 import { SOSButton } from "@/components/sos/sos-button";
 import { Button } from "@/components/ui/button";
-import { PanelRightClose, PanelRightOpen, ChevronUp, X } from "lucide-react";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { PanelRightClose, PanelRightOpen, List, X, Filter } from "lucide-react";
 import type { Incident } from "@/lib/api";
 
 const MapView = dynamic(
@@ -77,61 +85,87 @@ export default function DashboardPage() {
   // ── Mobile layout ────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div className="relative flex h-full flex-col">
+      <div className="relative h-full w-full overflow-hidden bg-background">
         {/* Full-screen map */}
-        <div className="relative flex-1">
+        <div className="absolute inset-0 z-0">
           <MapView
             incidents={filtered}
             center={center}
             zoom={zoom}
             selectedIncidentId={selectedId}
-            onIncidentClick={handleIncidentClick}
+            onIncidentClick={(incident) => {
+              handleIncidentSelect(incident); // Directly go to details page on map click
+            }}
             onMapMove={(c, z) => {
               setCenter(c);
               setZoom(z);
             }}
           />
-          <SOSButton incidents={incidents} />
         </div>
 
-        {/* Bottom sheet handle */}
-        <button
-          onClick={() => setSheetExpanded(!sheetExpanded)}
-          className="flex items-center justify-center gap-2 border-t border-border bg-background py-2 px-4"
-        >
-          <ChevronUp
-            className={`h-4 w-4 text-muted-foreground transition-transform ${sheetExpanded ? "rotate-180" : ""}`}
-          />
-          <span className="text-[12px] font-semibold text-foreground">
-            {filtered.length} incident{filtered.length !== 1 ? "s" : ""}
-          </span>
-          {canCreateIncident && <CreateIncidentDialog />}
-        </button>
-
-        {/* Bottom sheet content */}
-        {sheetExpanded && (
-          <div className="flex flex-col border-t border-border bg-background" style={{ maxHeight: "50vh" }}>
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-              <IncidentFilters />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setSheetExpanded(false)}
-              >
-                <X className="h-4 w-4" />
+        {/* Floating Top Controls */}
+        <div className="absolute top-4 left-4 right-4 z-[10] flex items-center justify-between pointer-events-none">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button size="icon" variant="outline" className="h-10 w-10 rounded-full bg-background/95 backdrop-blur-md shadow-md pointer-events-auto border-border/50">
+                <Filter className="h-4 w-4" />
               </Button>
+            </DrawerTrigger>
+            <DrawerContent className="max-h-[85vh]">
+              <DrawerHeader className="border-b border-border/50 text-left">
+                <DrawerTitle>Filters</DrawerTitle>
+              </DrawerHeader>
+              <div className="p-4">
+                <IncidentFilters className="border-0 px-0 py-2" />
+              </div>
+            </DrawerContent>
+          </Drawer>
+
+          {canCreateIncident && (
+            <div className="pointer-events-auto">
+              <CreateIncidentDialog />
             </div>
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <IncidentList
-                incidents={filtered}
-                isLoading={isLoading}
-                selectedId={selectedId}
-                onSelect={handleIncidentSelect}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Floating SOS */}
+        <div className="absolute bottom-[90px] right-4 z-[10]">
+           <SOSButton incidents={incidents} />
+        </div>
+
+        {/* Bottom Bar to open List Drawer */}
+        <div className="absolute bottom-6 left-4 right-4 z-[10]">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button className="w-full h-12 rounded-2xl shadow-xl flex items-center justify-between px-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                <span className="font-bold text-sm">
+                  {filtered.length} Incident{filtered.length !== 1 ? "s" : ""}
+                </span>
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <List className="h-4 w-4" /> View List
+                </div>
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="max-h-[85vh]">
+              <DrawerHeader className="border-b border-border/50 flex flex-row items-center justify-between px-5">
+                <DrawerTitle className="text-lg font-bold">Incidents</DrawerTitle>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+              <div className="flex-1 overflow-y-auto min-h-0 p-4">
+                <IncidentList
+                  incidents={filtered}
+                  isLoading={isLoading}
+                  selectedId={selectedId}
+                  onSelect={handleIncidentSelect}
+                />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
     );
   }

@@ -111,7 +111,7 @@ export function CreateIncidentDialog() {
           New
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
             Report New Incident
