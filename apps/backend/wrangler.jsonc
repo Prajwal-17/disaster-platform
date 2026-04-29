@@ -2,37 +2,27 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "backend",
   "main": "src/index.ts",
-  "compatibility_date": "2026-04-29"
-  // "compatibility_flags": [
-  //   "nodejs_compat"
-  // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
-  // "ai": {
-  //   "binding": "AI"
-  // },
-  // "observability": {
-  //   "enabled": true,
-  //   "head_sampling_rate": 1
-  // }
+  "compatibility_date": "2026-04-29",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Secrets — set via `wrangler secret put <NAME>` or in .dev.vars for local dev
+  // DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, FRONTEND_URL
+
+  "durable_objects": {
+    "bindings": [
+      {
+        // One instance per incident, keyed by incident ID
+        "name": "DISASTER_COORDINATION",
+        "class_name": "DisasterCoordination"
+      }
+    ]
+  },
+
+  // Migrations are required when first deploying a Durable Object class
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["DisasterCoordination"]
+    }
+  ]
 }
