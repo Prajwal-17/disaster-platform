@@ -112,7 +112,8 @@ export default function IncidentDetailPage({
   if (incLoading) {
     return (
       <div className="flex h-full">
-        <div className="w-96 space-y-4 border-r p-4">
+        <div className="flex-1 bg-muted animate-pulse" />
+        <div className="w-96 border-l p-4 space-y-4">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
@@ -122,7 +123,6 @@ export default function IncidentDetailPage({
             ))}
           </div>
         </div>
-        <div className="bg-muted flex-1 animate-pulse" />
       </div>
     );
   }
