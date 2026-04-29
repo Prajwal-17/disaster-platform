@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { QueryProvider } from "@/components/query-provider";
@@ -7,10 +7,18 @@ import { AuthProvider } from "@/components/auth-provider";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
+const geist = localFont({
+  src: "./fonts/GeistVF.woff",
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: "100 900",
+  display: "swap",
+});
+
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-mono",
+  weight: "100 900",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(dmSans.variable)}>
+    <html lang="en" className={cn(geist.variable, geistMono.variable)}>
       <body className="font-sans antialiased">
         <QueryProvider>
           <AuthProvider>

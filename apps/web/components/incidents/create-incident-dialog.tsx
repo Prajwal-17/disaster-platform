@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -80,30 +79,37 @@ export function CreateIncidentDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5">
+        <Button size="sm" className="gap-1.5 h-7 text-[12px] font-semibold">
           <Plus className="h-3.5 w-3.5" />
-          New Incident
+          New
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Report New Incident</DialogTitle>
+          <DialogTitle className="text-lg font-semibold tracking-tight">
+            Report New Incident
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 mt-1">
           <div className="space-y-2">
-            <Label htmlFor="inc-title">Title</Label>
-            <Input
+            <Label htmlFor="inc-title" className="text-[13px] font-medium text-foreground/80">
+              Title
+            </Label>
+            <input
               id="inc-title"
               placeholder="e.g. Chennai Flood 2026"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              className="input-field w-full"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="inc-desc">Description</Label>
+            <Label htmlFor="inc-desc" className="text-[13px] font-medium text-foreground/80">
+              Description
+            </Label>
             <textarea
               id="inc-desc"
               placeholder="Describe the disaster situation..."
@@ -111,15 +117,15 @@ export function CreateIncidentDialog() {
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={3}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="textarea-field w-full"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -133,46 +139,49 @@ export function CreateIncidentDialog() {
             </div>
 
             <div className="space-y-2">
-              <Label>Radius (km)</Label>
-              <Input
+              <Label className="text-[13px] font-medium text-foreground/80">Radius (km)</Label>
+              <input
                 type="number"
                 value={radiusKm}
                 onChange={(e) => setRadiusKm(e.target.value)}
                 min={1}
                 max={100}
+                className="input-field w-full"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Location</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">Location</Label>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 text-xs text-primary"
+                className="h-auto p-0 text-xs text-primary font-medium hover:text-primary/80"
                 onClick={useCurrentMapCenter}
               >
                 Use map center
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Input
+            <div className="grid grid-cols-2 gap-3">
+              <input
                 type="number"
                 step="any"
                 placeholder="Latitude"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
                 required
+                className="input-field w-full"
               />
-              <Input
+              <input
                 type="number"
                 step="any"
                 placeholder="Longitude"
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
                 required
+                className="input-field w-full"
               />
             </div>
           </div>
@@ -182,10 +191,15 @@ export function CreateIncidentDialog() {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              className="h-10 px-4 text-[13px] font-medium"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createIncident.isPending}>
+            <Button
+              type="submit"
+              disabled={createIncident.isPending}
+              className="h-10 px-5 text-[13px] font-semibold"
+            >
               {createIncident.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

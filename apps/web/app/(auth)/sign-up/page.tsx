@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import authClient from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -58,92 +57,114 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="w-full max-w-sm">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+    <div className="w-full max-w-[400px] animate-fade-in-up">
+      <div className="auth-card px-8 py-10">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="mb-5 flex items-center justify-center gap-2.5">
+            <div className="logo-mark flex h-10 w-10 items-center justify-center rounded-xl">
+              <ShieldCheck className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-foreground">
+              DisasterLink
+            </span>
           </div>
-          <span className="text-xl font-bold tracking-tight">DisasterLink</span>
+          <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+            Create your account
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Join the disaster coordination network
+          </p>
         </div>
-        <h1 className="text-2xl font-semibold">Create your account</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Join the disaster coordination network
-        </p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5 stagger-children">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-[13px] font-medium text-foreground/80">
+              Full Name
+            </Label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+              className="input-field w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-[13px] font-medium text-foreground/80">
+              Email
+            </Label>
+            <input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className="input-field w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-[13px] font-medium text-foreground/80">
+              Password
+            </Label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Min 8 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className="input-field w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-[13px] font-medium text-foreground/80">Your Role</Label>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger className="h-11 w-full rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)] text-sm focus:border-primary focus:ring-3 focus:ring-primary/12">
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent>
+                {ROLES.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    <div className="flex flex-col py-0.5">
+                      <span className="font-medium">{r.label}</span>
+                      <span className="text-xs text-muted-foreground">{r.desc}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            type="submit"
+            className="btn-primary w-full mt-2"
+            disabled={loading}
+          >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create account
+          </Button>
+        </form>
       </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Your full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            autoComplete="name"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Min 8 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            autoComplete="new-password"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Your Role</Label>
-          <Select value={role} onValueChange={setRole}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select your role" />
-            </SelectTrigger>
-            <SelectContent>
-              {ROLES.map((r) => (
-                <SelectItem key={r.value} value={r.value}>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{r.label}</span>
-                    <span className="text-xs text-muted-foreground">{r.desc}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create account
-        </Button>
-      </form>
 
       {/* Footer */}
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/sign-in" className="font-medium text-primary hover:underline">
+        <Link
+          href="/sign-in"
+          className="font-medium text-primary hover:text-primary/80 transition-colors"
+        >
           Sign in
         </Link>
       </p>

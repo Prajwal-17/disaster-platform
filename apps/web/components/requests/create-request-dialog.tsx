@@ -10,7 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -82,44 +81,47 @@ export function CreateRequestDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5">
+        <Button size="sm" className="gap-1.5 h-7 text-[12px] font-semibold">
           <Plus className="h-3.5 w-3.5" />
           Post Request
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Post Resource Request</DialogTitle>
+          <DialogTitle className="text-lg font-semibold tracking-tight">
+            Post Resource Request
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 mt-1">
           <div className="space-y-2">
-            <Label>Title</Label>
-            <Input
+            <Label className="text-[13px] font-medium text-foreground/80">Title</Label>
+            <input
               placeholder="e.g. Need 5 units O+ blood"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              className="input-field w-full"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label className="text-[13px] font-medium text-foreground/80">Description</Label>
             <textarea
               placeholder="Provide details about the request..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={2}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="textarea-field w-full"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Resource Type</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">Resource Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,9 +136,9 @@ export function CreateRequestDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Urgency</Label>
+              <Label className="text-[13px] font-medium text-foreground/80">Urgency</Label>
               <Select value={urgency} onValueChange={setUrgency}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-[10px] border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,35 +151,38 @@ export function CreateRequestDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label>Latitude</Label>
-              <Input
+              <Label className="text-[13px] font-medium text-foreground/80">Latitude</Label>
+              <input
                 type="number"
                 step="any"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
                 required
+                className="input-field w-full"
               />
             </div>
             <div className="space-y-2">
-              <Label>Longitude</Label>
-              <Input
+              <Label className="text-[13px] font-medium text-foreground/80">Longitude</Label>
+              <input
                 type="number"
                 step="any"
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
                 required
+                className="input-field w-full"
               />
             </div>
             <div className="space-y-2">
-              <Label>Max Vol.</Label>
-              <Input
+              <Label className="text-[13px] font-medium text-foreground/80">Max Vol.</Label>
+              <input
                 type="number"
                 value={maxVolunteers}
                 onChange={(e) => setMaxVolunteers(e.target.value)}
                 min={1}
                 max={100}
+                className="input-field w-full"
               />
             </div>
           </div>
@@ -187,10 +192,15 @@ export function CreateRequestDialog({
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              className="h-10 px-4 text-[13px] font-medium"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createReq.isPending}>
+            <Button
+              type="submit"
+              disabled={createReq.isPending}
+              className="h-10 px-5 text-[13px] font-semibold"
+            >
               {createReq.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

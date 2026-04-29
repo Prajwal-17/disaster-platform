@@ -9,7 +9,6 @@ import { IncidentList } from "@/components/incidents/incident-list";
 import { IncidentFilters } from "@/components/incidents/incident-filters";
 import { CreateIncidentDialog } from "@/components/incidents/create-incident-dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type { Incident } from "@/lib/api";
 
@@ -59,16 +58,18 @@ export default function DashboardPage() {
     <div className="flex h-full">
       {/* Sidebar */}
       {sidebarOpen && (
-        <aside className="flex w-80 shrink-0 flex-col border-r bg-white">
+        <aside className="sidebar-panel flex w-[340px] shrink-0 flex-col">
           {/* Sidebar header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b">
-            <h2 className="text-sm font-semibold">Incidents</h2>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2E8F0]">
+            <h2 className="text-[13px] font-semibold text-foreground tracking-tight">
+              Incidents
+            </h2>
+            <div className="flex items-center gap-1.5">
               {canCreateIncident && <CreateIncidentDialog />}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
                 onClick={toggleSidebar}
               >
                 <PanelLeftClose className="h-4 w-4" />
@@ -90,8 +91,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Count */}
-          <div className="border-t px-3 py-2">
-            <span className="text-xs text-muted-foreground">
+          <div className="border-t border-[#E2E8F0] px-4 py-2.5">
+            <span className="text-[11px] font-medium text-muted-foreground tracking-wide">
               {filtered.length} incident{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -104,7 +105,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="icon"
-            className="absolute top-3 left-3 z-[1000] h-8 w-8 bg-white shadow-sm"
+            className="absolute top-3 left-3 z-[1000] h-9 w-9 bg-white shadow-sm border-[#E2E8F0] hover:bg-muted/60"
             onClick={toggleSidebar}
           >
             <PanelLeftOpen className="h-4 w-4" />

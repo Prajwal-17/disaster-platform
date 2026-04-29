@@ -14,14 +14,14 @@ export function IncidentFilters() {
   const setFilters = useMapStore((s) => s.setFilters);
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2 border-b">
+    <div className="flex items-center gap-2 px-4 py-3 border-b border-[#E2E8F0]">
       <Select
         value={filters.status}
         onValueChange={(v) =>
           setFilters({ status: v as "all" | "active" | "resolved" })
         }
       >
-        <SelectTrigger className="h-8 w-auto text-xs">
+        <SelectTrigger className="h-8 w-auto text-[12px] font-medium rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
@@ -45,7 +45,7 @@ export function IncidentFilters() {
           })
         }
       >
-        <SelectTrigger className="h-8 w-auto text-xs">
+        <SelectTrigger className="h-8 w-auto text-[12px] font-medium rounded-lg border-[oklch(0.90_0.006_250)] bg-[oklch(0.995_0.001_250)]">
           <SelectValue placeholder="Type" />
         </SelectTrigger>
         <SelectContent>
