@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,31 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+const getColorFromName = (name: string) => {
+  const colors = [
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-amber-500",
+    "bg-green-500",
+    "bg-emerald-500",
+    "bg-teal-500",
+    "bg-cyan-500",
+    "bg-blue-500",
+    "bg-indigo-500",
+    "bg-violet-500",
+    "bg-purple-500",
+    "bg-fuchsia-500",
+    "bg-pink-500",
+    "bg-rose-500",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
 
 export function Navbar() {
   const pathname = usePathname();
@@ -97,8 +122,9 @@ export function Navbar() {
               variant="ghost"
               className="h-8 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/80"
             >
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="bg-primary/8 text-[11px] font-semibold text-primary">
+              <Avatar className="h-7 w-7 border border-border/50">
+                {user?.image && <AvatarImage src={user.image} alt={user.name || ""} />}
+                <AvatarFallback className={`text-[11px] font-semibold text-white ${getColorFromName(user?.name || "")}`}>
                   {initials}
                 </AvatarFallback>
               </Avatar>
