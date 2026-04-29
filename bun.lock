@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "disaster",
+      "dependencies": {
+        "drizzle-orm": "^0.45.2",
+      },
       "devDependencies": {
         "prettier": "^3.7.4",
         "turbo": "^2.9.6",

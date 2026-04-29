@@ -1,11 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/stores/auth-store";
-import authClient from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import {
-  ShieldCheck,
-  Map,
-  LogOut,
-} from "lucide-react";
+import authClient from "@/lib/auth-client";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { LogOut, Map, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export function Navbar() {
@@ -57,8 +53,8 @@ export function Navbar() {
       {/* Left */}
       <div className="flex items-center gap-6">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <ShieldCheck className="h-4 w-4 text-primary-foreground" />
+          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-md">
+            <ShieldCheck className="text-primary-foreground h-4 w-4" />
           </div>
           <span className="text-base font-bold tracking-tight">
             DisasterLink
@@ -82,7 +78,10 @@ export function Navbar() {
       {/* Right */}
       <div className="flex items-center gap-3">
         {user && (
-          <Badge variant="outline" className={`text-xs ${roleBadge(user.role)}`}>
+          <Badge
+            variant="outline"
+            className={`text-xs ${roleBadge(user.role)}`}
+          >
             {user.role.toUpperCase()}
           </Badge>
         )}
@@ -91,7 +90,7 @@ export function Navbar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 rounded-full p-0">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -100,10 +99,13 @@ export function Navbar() {
           <DropdownMenuContent align="end" className="w-48">
             <div className="px-2 py-1.5">
               <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <p className="text-muted-foreground text-xs">{user?.email}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-destructive"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import authClient from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import authClient from "@/lib/auth-client";
 import { Loader2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -45,13 +45,13 @@ export default function SignInPage() {
       {/* Header */}
       <div className="mb-8 text-center">
         <div className="mb-4 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+          <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
+            <ShieldCheck className="text-primary-foreground h-5 w-5" />
           </div>
           <span className="text-xl font-bold tracking-tight">DisasterLink</span>
         </div>
         <h1 className="text-2xl font-semibold">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Sign in to access the coordination platform
         </p>
       </div>
@@ -91,9 +91,12 @@ export default function SignInPage() {
       </form>
 
       {/* Footer */}
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="font-medium text-primary hover:underline">
+        <Link
+          href="/sign-up"
+          className="text-primary font-medium hover:underline"
+        >
           Sign up
         </Link>
       </p>

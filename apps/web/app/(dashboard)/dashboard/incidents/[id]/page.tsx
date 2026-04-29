@@ -1,12 +1,7 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import { useIncident, useRequests } from "@/lib/queries";
-import { useAuthStore } from "@/lib/stores/auth-store";
-import { RequestCard } from "@/components/requests/request-card";
 import { CreateRequestDialog } from "@/components/requests/create-request-dialog";
+import { RequestCard } from "@/components/requests/request-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,34 +13,65 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIncident, useRequests } from "@/lib/queries";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
   Droplets,
-  Mountain,
-  Wind,
   Flame,
   HelpCircle,
   MapPin,
-  Clock,
+  Mountain,
   Users,
+  Wind,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 
 const MapView = dynamic(
   () => import("@/components/map/map-view").then((m) => m.MapView),
-  { ssr: false, loading: () => <div className="h-full w-full bg-muted animate-pulse" /> }
+  {
+    ssr: false,
+    loading: () => <div className="bg-muted h-full w-full animate-pulse" />,
+  },
 );
 
 const TYPE_CONFIG: Record<
   string,
   { icon: React.ElementType; color: string; bg: string; label: string }
 > = {
-  flood: { icon: Droplets, color: "text-blue-600", bg: "bg-blue-50", label: "Flood" },
-  earthquake: { icon: Mountain, color: "text-red-600", bg: "bg-red-50", label: "Earthquake" },
-  cyclone: { icon: Wind, color: "text-violet-600", bg: "bg-violet-50", label: "Cyclone" },
-  fire: { icon: Flame, color: "text-orange-600", bg: "bg-orange-50", label: "Fire" },
-  other: { icon: HelpCircle, color: "text-gray-600", bg: "bg-gray-50", label: "Other" },
+  flood: {
+    icon: Droplets,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    label: "Flood",
+  },
+  earthquake: {
+    icon: Mountain,
+    color: "text-red-600",
+    bg: "bg-red-50",
+    label: "Earthquake",
+  },
+  cyclone: {
+    icon: Wind,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    label: "Cyclone",
+  },
+  fire: {
+    icon: Flame,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    label: "Fire",
+  },
+  other: {
+    icon: HelpCircle,
+    color: "text-gray-600",
+    bg: "bg-gray-50",
+    label: "Other",
+  },
 };
 
 export default function IncidentDetailPage({
@@ -71,18 +97,22 @@ export default function IncidentDetailPage({
     return true;
   });
 
-  const config = (incident
-    ? TYPE_CONFIG[incident.type] || TYPE_CONFIG.other
-    : TYPE_CONFIG.other)!;
+  const config = (
+    incident
+      ? TYPE_CONFIG[incident.type] || TYPE_CONFIG.other
+      : TYPE_CONFIG.other
+  )!;
   const Icon = config.icon;
 
   const canPostRequest =
-    user?.role === "volunteer" || user?.role === "ngo" || user?.role === "admin";
+    user?.role === "volunteer" ||
+    user?.role === "ngo" ||
+    user?.role === "admin";
 
   if (incLoading) {
     return (
       <div className="flex h-full">
-        <div className="w-96 border-r p-4 space-y-4">
+        <div className="w-96 space-y-4 border-r p-4">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
@@ -92,7 +122,7 @@ export default function IncidentDetailPage({
             ))}
           </div>
         </div>
-        <div className="flex-1 bg-muted animate-pulse" />
+        <div className="bg-muted flex-1 animate-pulse" />
       </div>
     );
   }
@@ -116,11 +146,19 @@ export default function IncidentDetailPage({
 
   return (
     <div className="flex h-full">
-      {/* Left panel — Incident info + requests */}
-      <aside className="flex w-[420px] shrink-0 flex-col border-r bg-white">
-        {/* Header */}
-        <div className="border-b px-4 py-3">
-          <div className="flex items-center gap-2 mb-2">
+      {/* Map */}
+      <div className="relative min-w-0 flex-1">
+        <MapView
+          incidents={[incident]}
+          center={[incident.lat, incident.lng]}
+          zoom={12}
+          selectedIncidentId={incident.id}
+        />
+      </div>
+
+      <aside className="flex w-[420px] shrink-0 flex-col border-l bg-white">
+        <div className="shrink-0 border-b px-4 py-3">
+          <div className="mb-2 flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -129,15 +167,20 @@ export default function IncidentDetailPage({
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-base font-semibold truncate">
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-base font-semibold">
                 {incident.title}
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className={cn("flex items-center gap-1 font-medium", config.color)}>
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+            <div
+              className={cn(
+                "flex items-center gap-1 font-medium",
+                config.color,
+              )}
+            >
               <Icon className="h-3.5 w-3.5" />
               {config.label}
             </div>
@@ -148,7 +191,7 @@ export default function IncidentDetailPage({
                 "text-[10px] uppercase",
                 incident.status === "active"
                   ? "bg-emerald-100 text-emerald-700"
-                  : "bg-gray-100 text-gray-600"
+                  : "bg-gray-100 text-gray-600",
               )}
             >
               {incident.status}
@@ -162,13 +205,13 @@ export default function IncidentDetailPage({
             <span>{incident.radiusKm} km radius</span>
           </div>
 
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+          <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
             {incident.description}
           </p>
         </div>
 
         {/* Request filters + create */}
-        <div className="flex items-center justify-between gap-2 border-b px-4 py-2">
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-2">
           <div className="flex items-center gap-2">
             <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
               <SelectTrigger className="h-7 w-auto text-xs">
@@ -207,48 +250,41 @@ export default function IncidentDetailPage({
         </div>
 
         {/* Request list */}
-        <ScrollArea className="flex-1">
-          <div className="space-y-2 p-3">
-            {reqLoading ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-md" />
-              ))
-            ) : filteredRequests.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Users className="mb-2 h-8 w-8 text-muted-foreground/40" />
-                <p className="text-sm font-medium text-muted-foreground">
-                  No resource requests yet
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground/60">
-                  {canPostRequest
-                    ? "Post the first request to coordinate resources"
-                    : "Check back soon for updates"}
-                </p>
-              </div>
-            ) : (
-              filteredRequests.map((req) => (
-                <RequestCard key={req.id} request={req} />
-              ))
-            )}
-          </div>
-        </ScrollArea>
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="space-y-2 p-3">
+              {reqLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full rounded-md" />
+                ))
+              ) : filteredRequests.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Users className="text-muted-foreground/40 mb-2 h-8 w-8" />
+                  <p className="text-muted-foreground text-sm font-medium">
+                    No resource requests yet
+                  </p>
+                  <p className="text-muted-foreground/60 mt-1 text-xs">
+                    {canPostRequest
+                      ? "Post the first request to coordinate resources"
+                      : "Check back soon for updates"}
+                  </p>
+                </div>
+              ) : (
+                filteredRequests.map((req) => (
+                  <RequestCard key={req.id} request={req} />
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </div>
 
-        <div className="border-t px-4 py-2">
-          <span className="text-xs text-muted-foreground">
-            {filteredRequests.length} request{filteredRequests.length !== 1 ? "s" : ""}
+        <div className="shrink-0 border-t px-4 py-2">
+          <span className="text-muted-foreground text-xs">
+            {filteredRequests.length} request
+            {filteredRequests.length !== 1 ? "s" : ""}
           </span>
         </div>
       </aside>
-
-      {/* Map */}
-      <div className="flex-1">
-        <MapView
-          incidents={[incident]}
-          center={[incident.lat, incident.lng]}
-          zoom={12}
-          selectedIncidentId={incident.id}
-        />
-      </div>
     </div>
   );
 }

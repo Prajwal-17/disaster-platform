@@ -10,7 +10,7 @@ import { IncidentFilters } from "@/components/incidents/incident-filters";
 import { CreateIncidentDialog } from "@/components/incidents/create-incident-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import type { Incident } from "@/lib/api";
 
 const MapView = dynamic(
@@ -57,57 +57,16 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-full">
-      {/* Sidebar */}
-      {sidebarOpen && (
-        <aside className="flex w-80 shrink-0 flex-col border-r bg-white">
-          {/* Sidebar header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b">
-            <h2 className="text-sm font-semibold">Incidents</h2>
-            <div className="flex items-center gap-1">
-              {canCreateIncident && <CreateIncidentDialog />}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={toggleSidebar}
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <IncidentFilters />
-
-          {/* List */}
-          <div className="flex-1 overflow-hidden">
-            <IncidentList
-              incidents={filtered}
-              isLoading={isLoading}
-              selectedId={selectedId}
-              onSelect={handleIncidentSelect}
-            />
-          </div>
-
-          {/* Count */}
-          <div className="border-t px-3 py-2">
-            <span className="text-xs text-muted-foreground">
-              {filtered.length} incident{filtered.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-        </aside>
-      )}
-
       {/* Map */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-w-0">
         {!sidebarOpen && (
           <Button
             variant="outline"
             size="icon"
-            className="absolute top-3 left-3 z-[1000] h-8 w-8 bg-white shadow-sm"
+            className="absolute top-3 right-3 z-[1000] h-8 w-8 bg-white shadow-sm"
             onClick={toggleSidebar}
           >
-            <PanelLeftOpen className="h-4 w-4" />
+            <PanelRightOpen className="h-4 w-4" />
           </Button>
         )}
 
@@ -123,6 +82,51 @@ export default function DashboardPage() {
           }}
         />
       </div>
+
+      {/* Sidebar */}
+      {sidebarOpen && (
+        <aside className="flex w-80 shrink-0 flex-col border-l bg-white">
+          {/* Sidebar header */}
+          <div className="flex items-center justify-between px-3 py-2 border-b shrink-0">
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={toggleSidebar}
+              >
+                <PanelRightClose className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold">Incidents</h2>
+              {canCreateIncident && <CreateIncidentDialog />}
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="shrink-0">
+            <IncidentFilters />
+          </div>
+
+          {/* List */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            <IncidentList
+              incidents={filtered}
+              isLoading={isLoading}
+              selectedId={selectedId}
+              onSelect={handleIncidentSelect}
+            />
+          </div>
+
+          {/* Count */}
+          <div className="border-t px-3 py-2 shrink-0">
+            <span className="text-xs text-muted-foreground">
+              {filtered.length} incident{filtered.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
