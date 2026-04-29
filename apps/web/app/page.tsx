@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import authClient from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import { ShieldCheck, LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -65,9 +66,14 @@ export default function Home() {
     <div className="bg-background flex min-h-screen flex-col">
       <header className="border-border/40 flex items-center justify-between border-b px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-            <ShieldCheck className="text-primary-foreground h-4 w-4" />
-          </div>
+          <Image
+            src="/disasterlink-logo-cream.jpg"
+            alt="DisasterLink logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg bg-[#FFF8F2] object-contain"
+            priority
+          />
           <span className="text-foreground text-[15px] font-bold tracking-tight">
             DisasterLink
           </span>
@@ -84,26 +90,38 @@ export default function Home() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="h-8 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/80"
+                      className="hover:bg-muted/80 h-8 gap-2 rounded-full pr-2 pl-1"
                     >
-                      <Avatar className="h-7 w-7 border border-border/50">
-                        {user.image && <AvatarImage src={user.image} alt={user.name || ""} />}
-                        <AvatarFallback className={`text-[11px] font-semibold text-white ${getColorFromName(user.name || "")}`}>
+                      <Avatar className="border-border/50 h-7 w-7 border">
+                        {user.image && (
+                          <AvatarImage src={user.image} alt={user.name || ""} />
+                        )}
+                        <AvatarFallback
+                          className={`text-[11px] font-semibold text-white ${getColorFromName(user.name || "")}`}
+                        >
                           {initials}
                         </AvatarFallback>
                       </Avatar>
-                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                      <ChevronDown className="text-muted-foreground h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 z-[9999] p-1.5">
+                  <DropdownMenuContent
+                    align="end"
+                    className="z-[9999] w-52 p-1.5"
+                  >
                     <div className="px-2.5 py-2">
-                      <p className="text-sm font-semibold text-foreground">{user?.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
+                      <p className="text-foreground text-sm font-semibold">
+                        {user?.name}
+                      </p>
+                      <p className="text-muted-foreground mt-0.5 text-xs">
+                        {user?.email}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
+                      variant="destructive"
                       onClick={handleSignOut}
-                      className="text-destructive gap-2 cursor-pointer"
+                      className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 font-semibold tracking-tight"
                     >
                       <LogOut className="h-3.5 w-3.5" />
                       Sign out
@@ -114,10 +132,17 @@ export default function Home() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/sign-in">
-                  <Button variant="ghost">Sign In</Button>
+                  <Button
+                    variant="ghost"
+                    className="text-foreground/80 hover:text-foreground rounded-full px-4 font-semibold tracking-tight"
+                  >
+                    Sign In
+                  </Button>
                 </Link>
                 <Link href="/sign-up">
-                  <Button>Sign Up</Button>
+                  <Button className="shadow-primary/15 rounded-full px-4 font-bold tracking-tight shadow-sm">
+                    Sign Up
+                  </Button>
                 </Link>
               </div>
             ))}
