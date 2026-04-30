@@ -1,6 +1,9 @@
 "use client";
 
 import { IncidentChat } from "@/components/chat/incident-chat";
+import { AIChat } from "@/components/chat/ai-chat";
+import { AISummary } from "@/components/chat/ai-summary";
+
 import { CreateRequestDialog } from "@/components/requests/create-request-dialog";
 import { RequestCard } from "@/components/requests/request-card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIncident, useRequests } from "@/lib/queries";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { useIncidentChat } from "@/lib/hooks/use-incident-chat";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -153,6 +157,9 @@ export default function IncidentDetailPage({
 
   const { data: incidentData, isLoading: incLoading } = useIncident(id);
   const { data: requests = [], isLoading: reqLoading } = useRequests(id);
+
+  // Chat messages for AI context
+  const { messages: chatMessages } = useIncidentChat({ incidentId: id, enabled: true });
 
   const incident = incidentData?.incident;
 
@@ -334,7 +341,7 @@ export default function IncidentDetailPage({
       </div>
 
       {/* Request list */}
-      <div className="min-h-0 w-full flex-1 overflow-y-auto">
+      <div className="w-full">
         <div className="space-y-2 p-4">
           {reqLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
@@ -371,6 +378,24 @@ export default function IncidentDetailPage({
 
       {/* Live Chat */}
       <IncidentChat incidentId={id} />
+
+      {/* AI Summary */}
+      {incident && (
+        <AISummary
+          incident={incident}
+          requests={filteredRequests}
+          chatMessages={chatMessages}
+        />
+      )}
+
+      {/* AI Chat */}
+      {incident && (
+        <AIChat
+          incident={incident}
+          requests={filteredRequests}
+          chatMessages={chatMessages}
+        />
+      )}
     </>
   );
 
@@ -434,7 +459,7 @@ export default function IncidentDetailPage({
       </div>
 
       {/* Right panel — wider at 460px */}
-      <aside className="sidebar-panel bg-background flex w-[460px] shrink-0 flex-col overflow-hidden border-l border-[#E2E8F0]">
+      <aside className="sidebar-panel bg-background w-[460px] shrink-0 overflow-y-auto pb-8 border-l border-[#E2E8F0]">
         {sidebarContent}
       </aside>
     </div>

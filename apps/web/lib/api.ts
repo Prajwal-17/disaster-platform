@@ -224,3 +224,41 @@ export async function getNearbyLocations(lat: number, lng: number, radiusKm = 10
   );
   return res.locations;
 }
+
+// ─── AI ───────────────────────────────────────────────────────────────────────
+
+export async function sendChatMessage(
+  userMessage: string,
+  incident: Incident,
+  requests: ResourceRequest[],
+  chatHistory: any[],
+  conversationHistory: Array<{ role: "user" | "model"; text: string }>
+) {
+  const res = await apiFetch<{ response: string }>("/api/ai/chat", {
+    method: "POST",
+    body: JSON.stringify({
+      userMessage,
+      incident,
+      requests,
+      chatHistory,
+      conversationHistory,
+    }),
+  });
+  return res.response;
+}
+
+export async function generateSummary(
+  incident: Incident,
+  requests: ResourceRequest[],
+  chatHistory: any[]
+) {
+  const res = await apiFetch<{ summary: string }>("/api/ai/summary", {
+    method: "POST",
+    body: JSON.stringify({
+      incident,
+      requests,
+      chatHistory,
+    }),
+  });
+  return res.summary;
+}

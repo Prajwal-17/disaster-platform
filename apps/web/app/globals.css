@@ -507,3 +507,34 @@
 .incident-popup .leaflet-popup-close-button:hover {
   color: #1e293b !important;
 }
+
+/* ─── AI Summary Content ─── */
+.summary-content strong {
+  font-weight: 650;
+  color: var(--foreground);
+}
+
+.summary-content ul,
+.summary-content ol {
+  padding-left: 1.25em;
+  margin: 0.35em 0;
+}
+
+.summary-content li {
+  margin-bottom: 0.15em;
+}
+
+.summary-content p {
+  margin-bottom: 0.5em;
+}
+
+.summary-content p:last-child {
+  margin-bottom: 0;
+}
+
+.summary-content code {
+  background-color: var(--muted);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

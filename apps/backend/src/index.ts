@@ -7,6 +7,7 @@ import { locationController } from "./modules/location/location.controller";
 import { requestsController } from "./modules/requests/requests.controller";
 import { responsesController } from "./modules/responses/responses.controller";
 import { wsController } from "./modules/ws/ws.controller";
+import { aiController } from "./modules/ai/ai.controller";
 import type { CloudflareBindings } from "./types";
 
 // context binding from hono -> cf
@@ -34,6 +35,7 @@ app.route("/api", requestsController);
 app.route("/api", responsesController);
 app.route("/api/location", locationController);
 app.route("/api/ws", wsController);
+app.route("/api/ai", aiController);
 
 app.get("/", (c) =>
   c.json({ status: "ok", service: "disaster-coordination-api" }),

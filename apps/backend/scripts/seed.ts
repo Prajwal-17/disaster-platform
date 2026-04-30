@@ -34,6 +34,7 @@ const seed = async () => {
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || "fallback-secret",
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:8787",
     FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY || "fallback-key",
     DISASTER_COORDINATION: {} as any,
   });
 
@@ -58,7 +59,7 @@ const seed = async () => {
     },
   ];
 
-  const insertedUsers = [];
+  const insertedUsers: any[] = [];
 
   for (const u of staticUsersToCreate) {
     try {
@@ -119,16 +120,45 @@ const seed = async () => {
     return;
   }
 
-  const incidentsData = Array.from({ length: 5 }).map(() => {
+  const realWorldIncidents = [
+    {
+      title: "Severe Flooding in Coastal Region",
+      description: "Continuous heavy rainfall has caused the main river to overflow, inundating several villages in the region. Thousands are stranded and in need of immediate rescue and relief materials.",
+      type: "flood" as const,
+    },
+    {
+      title: "Magnitude 6.5 Earthquake",
+      description: "A strong earthquake has struck the northern region, causing structural damage to numerous buildings. Power lines are down and several roads are blocked by debris.",
+      type: "earthquake" as const,
+    },
+    {
+      title: "Cyclone Landfall Warning",
+      description: "A severe cyclonic storm has made landfall, bringing wind speeds of up to 150 km/h and heavy storm surges. Coastal communities have been evacuated but extensive damage to infrastructure is reported.",
+      type: "cyclone" as const,
+    },
+    {
+      title: "Massive Forest Fire",
+      description: "Dry weather conditions have sparked a large-scale forest fire that is rapidly spreading towards residential areas. Firefighting teams are struggling to contain the blaze due to high winds.",
+      type: "fire" as const,
+    },
+    {
+      title: "Industrial Chemical Spill",
+      description: "A train derailment has resulted in a massive chemical spill near a major water source. Hazardous materials teams are on-site and local residents are being advised to shelter in place.",
+      type: "other" as const,
+    }
+  ];
+
+  const incidentsData = Array.from({ length: 5 }).map((_, i) => {
     // Generate lat/lng roughly around India
     const lat = faker.location.latitude({ min: 8, max: 37 });
     const lng = faker.location.longitude({ min: 68, max: 97 });
+    const scenario = realWorldIncidents[i % realWorldIncidents.length];
 
     return {
       id: faker.string.uuid(),
-      title: faker.lorem.words(3),
-      description: faker.lorem.paragraph(),
-      type: faker.helpers.arrayElement(incidentTypes),
+      title: scenario.title,
+      description: scenario.description,
+      type: scenario.type,
       status: faker.helpers.arrayElement(incidentStatuses),
       lat,
       lng,
@@ -154,19 +184,31 @@ const seed = async () => {
     "low",
   ];
 
+  const realWorldRequests = [
+    { type: "blood", title: "Urgent O- Negative Blood Required", description: "Multiple trauma patients need O- negative blood immediately for surgery." },
+    { type: "medicine", title: "Antibiotics and First Aid Kits", description: "Local clinic has run out of basic first aid supplies and antibiotics for treating water-borne diseases." },
+    { type: "rescue", title: "Family Trapped on Roof", description: "A family of four is trapped on the roof of their flooded house. Water levels are still rising." },
+    { type: "food", title: "Rations for Relief Camp", description: "Relief camp hosting 500 evacuated residents needs non-perishable food items and clean drinking water." },
+    { type: "shelter", title: "Temporary Tents Needed", description: "Several families have lost their homes and are sleeping in the open. We need 50 temporary tents and blankets." },
+    { type: "other", title: "Generators for Emergency Power", description: "The main hospital has lost power and backup generators are failing. Need portable generators to keep life-support running." },
+    { type: "rescue", title: "Evacuation Truck Needed", description: "Elderly care facility needs high-clearance vehicles to evacuate 30 residents through flooded streets." },
+    { type: "food", title: "Baby Formula and Diapers", description: "Multiple families with infants are requesting baby formula and diapers. Current supplies are completely depleted." }
+  ];
+
   const requestsData = Array.from({ length: 20 }).map(() => {
     const incident = faker.helpers.arrayElement(insertedIncidents);
     // Add slight offset to incident location for request
     const lat = incident.lat + faker.number.float({ min: -0.05, max: 0.05 });
     const lng = incident.lng + faker.number.float({ min: -0.05, max: 0.05 });
+    const scenario = faker.helpers.arrayElement(realWorldRequests);
 
     return {
       id: faker.string.uuid(),
       incidentId: incident.id,
       requesterId: faker.helpers.arrayElement(insertedUsers).id,
-      type: faker.helpers.arrayElement(requestTypes),
-      title: faker.lorem.words(4),
-      description: faker.lorem.sentence(),
+      type: scenario.type as "blood" | "medicine" | "rescue" | "food" | "shelter" | "other",
+      title: scenario.title,
+      description: scenario.description,
       lat,
       lng,
       urgency: faker.helpers.arrayElement(urgencyLevels),

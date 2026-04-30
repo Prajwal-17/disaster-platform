@@ -28,6 +28,7 @@ export interface CloudflareBindings {
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
   FRONTEND_URL: string;
+  GEMINI_API_KEY: string;
   // Durable Object namespace
   DISASTER_COORDINATION: DurableObjectNamespace;
 }
