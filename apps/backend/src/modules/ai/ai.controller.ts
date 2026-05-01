@@ -26,7 +26,7 @@ aiController.post("/chat", async (c) => {
     return c.json({ response });
   } catch (error: any) {
     console.error("AI Chat Error:", error);
-    return c.json({ error: "Failed to generate AI chat response." }, 500);
+    return c.json({ error: error.message || "Failed to generate AI chat response." }, 500);
   }
 });
 

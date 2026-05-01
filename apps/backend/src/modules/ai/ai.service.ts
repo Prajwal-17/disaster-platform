@@ -10,17 +10,7 @@ export class AiService {
 
   private getModel() {
     return this.genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction: `You are DisasterLink AI — a concise, empathetic disaster-coordination assistant.
-You help coordinate disaster relief operations, triage resource requests, and provide situational awareness.
-
-Guidelines:
-- Keep responses short (2-4 sentences unless the user asks for detail).
-- Use clear, actionable language suitable for emergency responders.
-- When summarizing, highlight: severity, active needs, and recommended next steps.
-- If asked about something outside disaster coordination, politely redirect.
-- Never fabricate data — if you're uncertain, say so.
-- Format lists with bullet points when there are 3+ items.`,
+      model: "gemma-3-12b-it",
     });
   }
 
@@ -100,7 +90,20 @@ Guidelines:
           role: "user",
           parts: [
             {
-              text: `Here is the current incident context I'm working with:\n\n${context}\n\nPlease use this context to help me coordinate the response.`,
+              text: `You are DisasterLink AI — a focused disaster-coordination assistant.
+Your sole purpose is to provide information regarding what is currently available based ONLY on the context provided.
+You must focus on incident types (e.g., floods, earthquakes), the available items/resources, and the number of volunteers available.
+
+Guidelines:
+- ONLY answer questions about available resources, volunteers, and incident details provided in the context.
+- Do NOT provide general advice or information outside of the provided context.
+- Keep responses short (2-4 sentences unless the user asks for detail).
+- Use clear, actionable language suitable for emergency responders.
+- If asked about something outside of the available incidents, items, or volunteers, politely redirect and state you can only provide information on what is currently available.
+- Never fabricate data — if you're uncertain, say so.
+- Format lists using plain text hyphens (-). Do NOT use any markdown formatting like *, #, or _. Output plain text only.
+
+Here is the current incident context I'm working with:\n\n${context}\n\nPlease use this context to help me coordinate the response.`,
             },
           ],
         },
@@ -135,14 +138,14 @@ Guidelines:
 
 ${context}
 
-Structure your report as:
-1. **Situation Overview** — 1-2 sentence summary of the incident
-2. **Critical Needs** — Most urgent unmet needs (if any)
-3. **Resource Status** — Brief status of requests and volunteer coverage
-4. **Coordination Notes** — Key observations from chat (if any)
-5. **Recommended Actions** — 2-3 concrete next steps
+Structure your report exactly like this (Do NOT use any markdown formatting, no *, no #, just plain text):
+1. Situation Overview: 1-2 sentence summary of the incident
+2. Critical Needs: Most urgent unmet needs (if any)
+3. Resource Status: Brief status of requests and volunteer coverage
+4. Coordination Notes: Key observations from chat (if any)
+5. Recommended Actions: 2-3 concrete next steps
 
-Keep it brief and actionable. Use bullet points.`;
+Keep it brief and actionable. Use plain text hyphens (-) for lists, absolutely no markdown symbols.`;
 
     const result = await model.generateContent(prompt);
     return result.response.text();
