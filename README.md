@@ -1,3 +1,6 @@
+
+A disaster volunteer platform is a digital network designed to connect spontaneous or trained volunteers with relief organizations and local authorities during emergencies. These platforms streamline disaster response by organizing resources, mapping volunteer skills, and deploying individuals effectively
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.
