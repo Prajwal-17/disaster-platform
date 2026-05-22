@@ -18,15 +18,11 @@ const respondToRequest = async (db: DB, requestId: string, volunteerId: string) 
 
   const volunteerCount = await responsesRepository.getActiveResponsesCount(db, requestId);
 
-  const warning =
-    volunteerCount >= request.maxVolunteers
-      ? {
-          type: "VOLUNTEER_WARNING",
-          message: `${volunteerCount} volunteers are already heading here. Your help may not be needed, but you can still proceed.`,
-          count: volunteerCount,
-          max: request.maxVolunteers,
-        }
-      : null;
+  if (volunteerCount >= request.maxVolunteers) {
+    throw new Error(`This request has already reached its maximum of ${request.maxVolunteers} volunteers.`);
+  }
+
+  const warning = null;
 
   let response;
   if (existing) {

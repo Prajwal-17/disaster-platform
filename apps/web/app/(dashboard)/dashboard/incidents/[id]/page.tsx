@@ -242,15 +242,39 @@ export default function IncidentDetailPage({
             Back to all incidents
           </Button>
         </div>
-        <div className="mb-3">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-              Incident Details
-            </span>
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                Incident Details
+              </span>
+            </div>
+            <h1 className="text-foreground text-xl font-bold tracking-tight leading-tight">
+              {incident.title}
+            </h1>
           </div>
-          <h1 className="text-foreground text-xl font-bold tracking-tight leading-tight">
-            {incident.title}
-          </h1>
+          {(user?.role === "admin" || user?.role === "ngo") && incident.status !== "resolved" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs font-semibold text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300"
+              onClick={async () => {
+                try {
+                  const res = await fetch(`/api/incidents/${incident.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'resolved' })
+                  });
+                  if (!res.ok) throw new Error('Failed to resolve');
+                  window.location.reload();
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              Resolve Incident
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 text-[11px]">

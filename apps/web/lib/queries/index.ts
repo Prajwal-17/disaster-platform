@@ -8,6 +8,7 @@ import {
   updateIncident,
   getRequests,
   createRequest,
+  updateRequest,
   respondToRequest,
   updateResponseStatus,
   withdrawResponse,
@@ -91,6 +92,17 @@ export function useCreateRequest(incidentId: string) {
       queryClient.invalidateQueries({
         queryKey: ["requests", incidentId],
       });
+    },
+  });
+}
+
+export function useUpdateRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<ResourceRequest> }) =>
+      updateRequest(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
     },
   });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ResourceRequest } from "@/lib/api";
-import { useRespondToRequest } from "@/lib/queries";
+import { useRespondToRequest, useUpdateRequest } from "@/lib/queries";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,7 @@ type Props = {
 export function RequestCard({ request }: Props) {
   const user = useAuthStore((s) => s.user);
   const respond = useRespondToRequest();
+  const update = useUpdateRequest();
 
   const Icon = RESOURCE_ICONS[request.type] || Package;
   const urgencyStyle = (URGENCY_STYLES[request.urgency] || URGENCY_STYLES.medium)!;
@@ -140,22 +141,44 @@ export function RequestCard({ request }: Props) {
           </div>
 
           {/* Action */}
-          {canRespond && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="mt-3 h-8 gap-1.5 text-xs font-semibold border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30"
-              onClick={handleRespond}
-              disabled={respond.isPending}
-            >
-              {respond.isPending ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <HandHelping className="h-3 w-3" />
-              )}
-              Respond
-            </Button>
-          )}
+          <div className="mt-3 flex items-center gap-2">
+            {canRespond && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1.5 text-xs font-semibold border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30"
+                onClick={handleRespond}
+                disabled={respond.isPending}
+              >
+                {respond.isPending ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <HandHelping className="h-3 w-3" />
+                )}
+                Respond
+              </Button>
+            )}
+            
+            {(user?.role === "admin" || user?.role === "ngo") && request.status !== "fulfilled" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1.5 text-xs font-semibold text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300"
+                onClick={() => {
+                  update.mutate(
+                    { id: request.id, data: { status: "fulfilled" } },
+                    {
+                      onSuccess: () => toast.success("Request resolved!"),
+                      onError: (e) => toast.error(e.message),
+                    }
+                  );
+                }}
+                disabled={update.isPending}
+              >
+                {update.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Resolve"}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
