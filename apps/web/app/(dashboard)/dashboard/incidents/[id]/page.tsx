@@ -25,7 +25,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIncident, useRequests } from "@/lib/queries";
+import { useIncident, useRequests, useUpdateIncident } from "@/lib/queries";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useIncidentChat } from "@/lib/hooks/use-incident-chat";
 import { cn } from "@/lib/utils";
@@ -157,6 +157,7 @@ export default function IncidentDetailPage({
 
   const { data: incidentData, isLoading: incLoading } = useIncident(id);
   const { data: requests = [], isLoading: reqLoading } = useRequests(id);
+  const updateIncidentMutation = useUpdateIncident();
 
   // Chat messages for AI context
   const { messages: chatMessages } = useIncidentChat({ incidentId: id, enabled: true });
@@ -258,21 +259,22 @@ export default function IncidentDetailPage({
               size="sm"
               variant="outline"
               className="h-7 text-xs font-semibold text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300"
-              onClick={async () => {
-                try {
-                  const res = await fetch(`/api/incidents/${incident.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'resolved' })
-                  });
-                  if (!res.ok) throw new Error('Failed to resolve');
-                  window.location.reload();
-                } catch (e) {
-                  console.error(e);
-                }
+              onClick={() => {
+                updateIncidentMutation.mutate(
+                  { id: incident.id, data: { status: 'resolved' } },
+                  {
+                    onSuccess: () => {
+                      // Handled by react-query invalidation automatically
+                    },
+                    onError: (e) => {
+                      console.error("Failed to resolve", e);
+                    }
+                  }
+                );
               }}
+              disabled={updateIncidentMutation.isPending}
             >
-              Resolve Incident
+              {updateIncidentMutation.isPending ? "Resolving..." : "Resolve Incident"}
             </Button>
           )}
         </div>
