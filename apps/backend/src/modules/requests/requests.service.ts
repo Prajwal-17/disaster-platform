@@ -84,7 +84,7 @@ const updateRequest = async (
   const existing = await requestsRepository.findById(db, id);
   if (!existing) throw new Error("Request not found");
 
-  if (existing.requesterId !== userId && userRole !== "admin") {
+  if (existing.requesterId !== userId && userRole !== "admin" && userRole !== "ngo") {
     throw new Error("Forbidden");
   }
 
@@ -107,7 +107,7 @@ const cancelRequest = async (db: DB, id: string, userId: string, userRole: strin
   const existing = await requestsRepository.findById(db, id);
   if (!existing) throw new Error("Request not found");
 
-  if (existing.requesterId !== userId && userRole !== "admin") {
+  if (existing.requesterId !== userId && userRole !== "admin" && userRole !== "ngo") {
     throw new Error("Forbidden");
   }
 

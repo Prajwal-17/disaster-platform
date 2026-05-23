@@ -25,7 +25,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIncident, useRequests } from "@/lib/queries";
+import { useIncident, useRequests, useUpdateIncident } from "@/lib/queries";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useIncidentChat } from "@/lib/hooks/use-incident-chat";
 import { cn } from "@/lib/utils";
@@ -157,6 +157,7 @@ export default function IncidentDetailPage({
 
   const { data: incidentData, isLoading: incLoading } = useIncident(id);
   const { data: requests = [], isLoading: reqLoading } = useRequests(id);
+  const updateIncidentMutation = useUpdateIncident();
 
   // Chat messages for AI context
   const { messages: chatMessages } = useIncidentChat({ incidentId: id, enabled: true });
@@ -242,15 +243,40 @@ export default function IncidentDetailPage({
             Back to all incidents
           </Button>
         </div>
-        <div className="mb-3">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-              Incident Details
-            </span>
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                Incident Details
+              </span>
+            </div>
+            <h1 className="text-foreground text-xl font-bold tracking-tight leading-tight">
+              {incident.title}
+            </h1>
           </div>
-          <h1 className="text-foreground text-xl font-bold tracking-tight leading-tight">
-            {incident.title}
-          </h1>
+          {(user?.role === "admin" || user?.role === "ngo") && incident.status !== "resolved" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs font-semibold text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300"
+              onClick={() => {
+                updateIncidentMutation.mutate(
+                  { id: incident.id, data: { status: 'resolved' } },
+                  {
+                    onSuccess: () => {
+                      // Handled by react-query invalidation automatically
+                    },
+                    onError: (e) => {
+                      console.error("Failed to resolve", e);
+                    }
+                  }
+                );
+              }}
+              disabled={updateIncidentMutation.isPending}
+            >
+              {updateIncidentMutation.isPending ? "Resolving..." : "Resolve Incident"}
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
